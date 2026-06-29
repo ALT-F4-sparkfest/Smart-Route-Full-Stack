@@ -60,3 +60,4 @@ async def broadcast(data: dict):
         except:
             dead.append(client)
     for d in dead:
+        connected_clients.remove(d)
