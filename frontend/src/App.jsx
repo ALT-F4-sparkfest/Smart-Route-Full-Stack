@@ -1,40 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import LiveMap from "./components/LiveMap";
-import VehicleList from "./components/VehicleList";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
+import CommuterView from "./pages/CommuterView";
+import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
 
 export default function App() {
-  const [vehicles, setVehicles] = useState({});
-  const [connected, setConnected] = useState(false);
-  const ws = useRef(null);
-
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws");
-
-    ws.current.onopen = () => {
-      console.log("Connected to SmartRoute backend");
-      setConnected(true);
-    };
-
-    ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "vehicle_update") {
-        setVehicles((prev) => ({
-          ...prev,
-          [msg.data.vehicle_id]: msg.data,
-        }));
-      }
-    };
-
-    ws.current.onclose = () => {
-      console.log("Disconnected");
-      setConnected(false);
-    };
-
-    return () => ws.current.close();
-  }, []);
-
-  const vehicleCount = Object.keys(vehicles).length;
+  const location = useLocation();
 
   return (
     <div className="app">
@@ -46,20 +16,25 @@ export default function App() {
             <span className="subtitle">Live PUV Tracking</span>
           </div>
         </div>
-        <div className="header-right">
-          <div className={`status-badge ${connected ? "online" : "offline"}`}>
-            <span className="status-dot"></span>
-            {connected ? "Live" : "Offline"}
-          </div>
-          <div className="vehicle-count">
-            {vehicleCount} vehicle{vehicleCount !== 1 ? "s" : ""} active
-          </div>
-        </div>
+        <nav className="nav">
+          <Link
+            to="/"
+            className={`nav-link ${location.pathname === "/" ? "active" : ""}`}
+          >
+            Commuter
+          </Link>
+          <Link
+            to="/dashboard"
+            className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
+          >
+            Dashboard
+          </Link>
+        </nav>
       </header>
-      <div className="content">
-        <LiveMap vehicles={vehicles} />
-        <VehicleList vehicles={vehicles} />
-      </div>
+      <Routes>
+        <Route path="/" element={<CommuterView />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
+      </Routes>
     </div>
   );
 }
