@@ -1,6 +1,5 @@
 import { db } from "../firebase";
 import { ref, onValue } from "firebase/database";
-
 import { useState, useEffect, useRef } from "react";
 import LiveMap from "../components/LiveMap";
 import VehicleList from "../components/VehicleList";
@@ -10,6 +9,8 @@ export default function CommuterView() {
   const [connected, setConnected] = useState(false);
   const [waitingCount, setWaitingCount] = useState(0);
   const [reportSent, setReportSent] = useState(false);
+  const [eta, setEta] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
   const ws = useRef(null);
 
   useEffect(() => {
@@ -29,7 +30,6 @@ export default function CommuterView() {
     };
     ws.current.onclose = () => setConnected(false);
 
-    // Listen to Firebase for vehicle updates
     const vehiclesRef = ref(db, "vehicles");
     onValue(vehiclesRef, (snapshot) => {
       const data = snapshot.val();
@@ -39,16 +39,26 @@ export default function CommuterView() {
     return () => ws.current.close();
   }, []);
 
+  const fetchEta = (lat, lng) => {
+    fetch(`http://localhost:8000/eta?lat=${lat}&lng=${lng}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.eta !== null) setEta(d);
+      });
+  };
+
   const reportWaiting = () => {
     navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      setUserLocation({ lat: latitude, lng: longitude });
+
       fetch("http://localhost:8000/commuter/waiting", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        }),
+        body: JSON.stringify({ lat: latitude, lng: longitude }),
       });
+
+      fetchEta(latitude, longitude);
       setReportSent(true);
       setTimeout(() => setReportSent(false), 3000);
     });
@@ -78,6 +88,22 @@ export default function CommuterView() {
           {reportSent ? "✓ Reported!" : "🙋 I'm Waiting for a Jeep"}
         </button>
       </div>
+
+      {eta && (
+        <div className="eta-banner">
+          <div className="eta-main">
+            <span className="eta-icon">🚌</span>
+            <div>
+              <div className="eta-time">{eta.eta} mins away</div>
+              <div className="eta-route">
+                {eta.nearest.route} · {eta.nearest.speed} km/h
+              </div>
+            </div>
+          </div>
+          <div className="eta-vehicle">{eta.nearest.vehicle_id}</div>
+        </div>
+      )}
+
       <div className="content">
         <LiveMap vehicles={vehicles} />
         <VehicleList vehicles={vehicles} />

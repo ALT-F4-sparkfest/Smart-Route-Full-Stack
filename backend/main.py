@@ -60,6 +60,31 @@ async def broadcast(data: dict):
     for d in dead:
         connected_clients.remove(d)
 
+
+
+import math
+
+def compute_eta(vehicle: dict, commuter_lat: float, commuter_lng: float) -> float:
+    """Simple ETA: distance / average speed in minutes"""
+    lat1, lng1 = math.radians(vehicle["lat"]), math.radians(vehicle["lng"])
+    lat2, lng2 = math.radians(commuter_lat), math.radians(commuter_lng)
+    
+    dlat = lat2 - lat1
+    dlng = lng2 - lng1
+    
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng/2)**2
+    distance_km = 6371 * 2 * math.asin(math.sqrt(a))
+    
+    speed = vehicle.get("speed", 30)
+    if speed < 1:
+        speed = 30
+    
+    eta_minutes = (distance_km / speed) * 60
+    return round(eta_minutes, 1)
+
+
+
+
 # ── REST endpoints ──────────────────────────────────────
 @app.get("/")
 def root():
@@ -105,3 +130,25 @@ async def commuter_waiting(payload: dict):
 @app.get("/commuter/waiting/all")
 def get_waiters():
     return {"waiters": waiting_commuters}
+
+
+
+
+@app.get("/eta")
+def get_eta(lat: float, lng: float):
+    if not vehicle_states:
+        return {"eta": None, "message": "No vehicles active"}
+    
+    results = []
+    for vid, vehicle in vehicle_states.items():
+        eta = compute_eta(vehicle, lat, lng)
+        results.append({
+            "vehicle_id": vid,
+            "route": vehicle.get("route"),
+            "speed": vehicle.get("speed"),
+            "eta_minutes": eta,
+            "status": vehicle.get("status")
+        })
+    
+    results.sort(key=lambda x: x["eta_minutes"])
+    return {"eta": results[0]["eta_minutes"], "nearest": results[0], "all": results}
