@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import LiveMap from "../components/LiveMap";
 import VehicleList from "../components/VehicleList";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
+
 export default function CommuterView() {
   const [vehicles, setVehicles] = useState({});
   const [connected, setConnected] = useState(false);
@@ -14,7 +17,7 @@ export default function CommuterView() {
   const ws = useRef(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws");
+    ws.current = new WebSocket(`${WS_URL}/ws`);
     ws.current.onopen = () => setConnected(true);
     ws.current.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -40,7 +43,7 @@ export default function CommuterView() {
   }, []);
 
   const fetchEta = (lat, lng) => {
-    fetch(`http://localhost:8000/eta?lat=${lat}&lng=${lng}`)
+    fetch(`${BACKEND_URL}/eta?lat=${lat}&lng=${lng}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.eta !== null) setEta(d);
@@ -52,7 +55,7 @@ export default function CommuterView() {
       const { latitude, longitude } = pos.coords;
       setUserLocation({ lat: latitude, lng: longitude });
 
-      fetch("http://localhost:8000/commuter/waiting", {
+      fetch(`${BACKEND_URL}/commuter/waiting`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lat: latitude, lng: longitude }),
