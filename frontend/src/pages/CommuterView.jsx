@@ -1,3 +1,6 @@
+import { db } from "../firebase";
+import { ref, onValue } from "firebase/database";
+
 import { useState, useEffect, useRef } from "react";
 import LiveMap from "../components/LiveMap";
 import VehicleList from "../components/VehicleList";
@@ -25,6 +28,14 @@ export default function CommuterView() {
       }
     };
     ws.current.onclose = () => setConnected(false);
+
+    // Listen to Firebase for vehicle updates
+    const vehiclesRef = ref(db, "vehicles");
+    onValue(vehiclesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) setVehicles(data);
+    });
+
     return () => ws.current.close();
   }, []);
 

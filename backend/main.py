@@ -3,10 +3,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import json
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, db as firebase_db
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+# ── Firebase Admin init ─────────────────────────────────
+# ── Firebase Admin init ─────────────────────────────────
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred, {
+    "databaseURL": os.getenv("FIREBASE_DATABASE_URL")
+})
 # In-memory stores
 connected_clients = []
 vehicle_states = {}
+waiting_commuters = []
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── WebSocket ───────────────────────────────────────────────
+# ── WebSocket ───────────────────────────────────────────
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -47,7 +60,7 @@ async def broadcast(data: dict):
     for d in dead:
         connected_clients.remove(d)
 
-# ── REST endpoints ──────────────────────────────────────────
+# ── REST endpoints ──────────────────────────────────────
 @app.get("/")
 def root():
     return {"status": "SmartRoute PH is running 🚌"}
@@ -63,15 +76,13 @@ async def update_vehicle(payload: dict):
         **payload,
         "last_seen": datetime.utcnow().isoformat()
     }
+    # Write to Firebase
+    firebase_db.reference(f"vehicles/{vid}").set(vehicle_states[vid])
+
     await broadcast({"type": "vehicle_update", "data": vehicle_states[vid]})
     return {"status": "ok"}
 
-
 # ── Commuter waiting endpoints ──────────────────────────
-from datetime import datetime
-
-waiting_commuters = []
-
 @app.post("/commuter/waiting")
 async def commuter_waiting(payload: dict):
     entry = {
@@ -80,6 +91,10 @@ async def commuter_waiting(payload: dict):
         "time": datetime.utcnow().strftime("%H:%M:%S")
     }
     waiting_commuters.append(entry)
+
+    # Write to Firebase
+    firebase_db.reference("waiters").set(waiting_commuters)
+
     await broadcast({
         "type": "waiting_update",
         "total": len(waiting_commuters),
