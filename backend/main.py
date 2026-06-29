@@ -65,3 +65,28 @@ async def update_vehicle(payload: dict):
     }
     await broadcast({"type": "vehicle_update", "data": vehicle_states[vid]})
     return {"status": "ok"}
+
+
+# ── Commuter waiting endpoints ──────────────────────────
+from datetime import datetime
+
+waiting_commuters = []
+
+@app.post("/commuter/waiting")
+async def commuter_waiting(payload: dict):
+    entry = {
+        "lat": payload.get("lat"),
+        "lng": payload.get("lng"),
+        "time": datetime.utcnow().strftime("%H:%M:%S")
+    }
+    waiting_commuters.append(entry)
+    await broadcast({
+        "type": "waiting_update",
+        "total": len(waiting_commuters),
+        "waiters": waiting_commuters
+    })
+    return {"status": "ok"}
+
+@app.get("/commuter/waiting/all")
+def get_waiters():
+    return {"waiters": waiting_commuters}
