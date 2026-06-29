@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import LiveMap from "../components/LiveMap";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
+
 export default function AdminDashboard() {
   const [vehicles, setVehicles] = useState({});
   const [waiters, setWaiters] = useState([]);
@@ -8,10 +11,10 @@ export default function AdminDashboard() {
   const ws = useRef(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/ws");
+    ws.current = new WebSocket(`${WS_URL}/ws`);
     ws.current.onopen = () => {
       setConnected(true);
-      fetch("http://localhost:8000/commuter/waiting/all")
+      fetch(`${BACKEND_URL}/commuter/waiting/all`)
         .then((r) => r.json())
         .then((d) => setWaiters(d.waiters || []));
     };
@@ -67,31 +70,35 @@ export default function AdminDashboard() {
 
           <div className="dash-section">
             <h2 className="panel-title">Active Vehicles</h2>
-            {vehicleList.map((v) => (
-              <div key={v.vehicle_id} className="vehicle-card">
-                <div className="vehicle-header">
-                  <span className="vehicle-id">{v.vehicle_id}</span>
-                  <span className={`vehicle-status ${v.status}`}>
-                    {v.status}
-                  </span>
+            {vehicleList.length === 0 ? (
+              <div className="empty-state">No vehicles active</div>
+            ) : (
+              vehicleList.map((v) => (
+                <div key={v.vehicle_id} className="vehicle-card">
+                  <div className="vehicle-header">
+                    <span className="vehicle-id">{v.vehicle_id}</span>
+                    <span className={`vehicle-status ${v.status}`}>
+                      {v.status}
+                    </span>
+                  </div>
+                  <div className="vehicle-route">{v.route}</div>
+                  <div className="vehicle-stats">
+                    <div className="stat">
+                      <span className="stat-label">Speed</span>
+                      <span className="stat-value">{v.speed} km/h</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-label">Lat</span>
+                      <span className="stat-value">{v.lat}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-label">Lng</span>
+                      <span className="stat-value">{v.lng}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="vehicle-route">{v.route}</div>
-                <div className="vehicle-stats">
-                  <div className="stat">
-                    <span className="stat-label">Speed</span>
-                    <span className="stat-value">{v.speed} km/h</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Lat</span>
-                    <span className="stat-value">{v.lat}</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Lng</span>
-                    <span className="stat-value">{v.lng}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="dash-section">
