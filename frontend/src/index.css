@@ -87,3 +87,14 @@ body {
 .search-overlay button:hover {
   transform: scale(1.08);
 }
+.popup-row {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin: 12px 0;
+
+  font-size: 14px;
+}
