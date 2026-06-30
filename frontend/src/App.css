@@ -1,3 +1,219 @@
+/* ==================== LANDING PAGE ==================== */
+.landing-page {
+  padding: 16px 16px 40px;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 40px 0 20px;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: #ff6b00;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 16px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: #1a237e;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.hero-tagline {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ff6b00;
+  margin: 8px 0 12px;
+  font-style: italic;
+}
+
+.hero-description {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* CTA Buttons */
+.cta-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0 32px;
+}
+
+.cta-button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  width: 100%;
+  text-align: left;
+}
+
+.cta-button:active {
+  transform: scale(0.97);
+}
+
+.cta-button.primary {
+  background: #1a237e;
+  color: white;
+  box-shadow: 0 4px 16px rgba(26, 35, 126, 0.3);
+}
+
+.cta-button.secondary {
+  background: #ff6b00;
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
+}
+
+.cta-icon {
+  font-size: 28px;
+}
+
+.cta-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.cta-sub {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* How It Works */
+.how-it-works {
+  margin: 32px 0;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a237e;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.step-card {
+  background: #f8f9fa;
+  padding: 16px 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.step-number {
+  background: #ff6b00;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 auto 8px;
+}
+
+.step-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.step-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a237e;
+  margin: 4px 0;
+}
+
+.step-card p {
+  font-size: 12px;
+  color: #777;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Available Routes */
+.routes-section {
+  margin: 32px 0;
+}
+
+.routes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.route-card {
+  background: #f8f9fa;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a237e;
+  text-align: center;
+  border: 1px solid #eee;
+}
+
+/* Landing Footer */
+.landing-footer {
+  text-align: center;
+  padding: 20px 0 10px;
+  font-size: 12px;
+  color: #aaa;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 16px;
+}
+
+/* ==================== RESPONSIVE LANDING ==================== */
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 56px;
+  }
+  .cta-grid {
+    flex-direction: row;
+    max-width: 480px;
+    margin: 24px auto 32px;
+  }
+  .steps-grid {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .routes-grid {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
 /* ==================== RESET & BASE ==================== */
 * {
   box-sizing: border-box;
@@ -18,6 +234,7 @@ body {
   margin: 0 auto;
   background: #f5f5f5;
   min-height: 100vh;
+  width: 100%;
 }
 
 .app-content {
@@ -340,4 +557,271 @@ body {
   .stat-cards {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* ==================== MODAL ==================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalFade 0.2s ease;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1a237e;
+  font-size: 20px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.modal-body p {
+  margin: 12px 0;
+}
+
+/* ==================== COMMUTER VIEW ==================== */
+.commuter-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 12px;
+}
+
+.commuter-map {
+  height: 350px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.commuter-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.vehicle-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.waiting-btn {
+  background: #ff6b00;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.waiting-btn.active {
+  background: #00c853;
+}
+
+.commuter-list {
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.vehicle-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.vehicle-item:last-child {
+  border-bottom: none;
+}
+
+.vehicle-icon {
+  font-size: 24px;
+}
+
+.vehicle-info {
+  flex: 1;
+}
+
+.vehicle-id {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a237e;
+}
+
+.vehicle-route {
+  font-size: 12px;
+  color: #888;
+}
+
+.vehicle-speed {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.learn-more-btn {
+  background: transparent;
+  border: 2px solid #1a237e;
+  color: #1a237e;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+}
+
+.learn-more-btn:hover {
+  background: #1a237e;
+  color: white;
+}
+
+/* ==================== MODAL ==================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalFade 0.2s ease;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1a237e;
+  font-size: 20px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.modal-body p {
+  margin: 12px 0;
+}
+
+.learn-more-btn {
+  background: transparent;
+  border: 2px solid #1a237e;
+  color: #1a237e;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+}
+
+.learn-more-btn:hover {
+  background: #1a237e;
+  color: white;
 }

@@ -1,115 +1,70 @@
-import { db } from "../firebase";
-import { ref, onValue } from "firebase/database";
-import { useState, useEffect, useRef } from "react";
+// src/pages/CommuterView.jsx
+import { useState, useEffect } from "react";
 import LiveMap from "../components/LiveMap";
-import VehicleList from "../components/VehicleList";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
 
 export default function CommuterView() {
   const [vehicles, setVehicles] = useState({});
-  const [connected, setConnected] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(0);
-  const [reportSent, setReportSent] = useState(false);
-  const [eta, setEta] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const ws = useRef(null);
+  const [isWaiting, setIsWaiting] = useState(false);
 
+  // Simulate vehicle data (replace with WebSocket later)
   useEffect(() => {
-    ws.current = new WebSocket(`${WS_URL}/ws`);
-    ws.current.onopen = () => setConnected(true);
-    ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "vehicle_update") {
-        setVehicles((prev) => ({
-          ...prev,
-          [msg.data.vehicle_id]: msg.data,
-        }));
-      }
-      if (msg.type === "waiting_update") {
-        setWaitingCount(msg.total);
-      }
+    // For now, use mock data if no vehicles
+    const mockVehicles = {
+      "PUV-001": {
+        vehicle_id: "PUV-001",
+        lat: 14.567214,
+        lng: 121.029426,
+        speed: 21.8,
+        route: "Cubao - Quiapo",
+        status: "on_route",
+      },
     };
-    ws.current.onclose = () => setConnected(false);
-
-    const vehiclesRef = ref(db, "vehicles");
-    onValue(vehiclesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) setVehicles(data);
-    });
-
-    return () => ws.current.close();
+    setVehicles(mockVehicles);
   }, []);
 
-  const fetchEta = (lat, lng) => {
-    fetch(`${BACKEND_URL}/eta?lat=${lat}&lng=${lng}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.eta !== null) setEta(d);
-      });
-  };
+  const vehicleList = Object.values(vehicles);
 
-  const reportWaiting = () => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords;
-      setUserLocation({ lat: latitude, lng: longitude });
-
-      fetch(`${BACKEND_URL}/commuter/waiting`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat: latitude, lng: longitude }),
-      });
-
-      fetchEta(latitude, longitude);
-      setReportSent(true);
-      setTimeout(() => setReportSent(false), 3000);
-    });
+  const handleWaiting = () => {
+    setIsWaiting(!isWaiting);
+    // In real app, send to backend
   };
 
   return (
-    <div className="page-content">
-      <div className="commuter-bar">
-        <div className="commuter-status">
-          <div className={`status-badge ${connected ? "online" : "offline"}`}>
-            <span className="status-dot"></span>
-            {connected ? "Live" : "Offline"}
-          </div>
-          <span className="vehicle-count">
-            {Object.keys(vehicles).length} vehicle(s) active
-          </span>
-          {waitingCount > 0 && (
-            <span className="waiting-count">
-              🧍 {waitingCount} waiting nearby
-            </span>
-          )}
-        </div>
+    <div className="commuter-view">
+      {/* Map */}
+      <div className="commuter-map">
+        <LiveMap vehicles={vehicles} />
+      </div>
+
+      {/* Status Bar */}
+      <div className="commuter-status">
+        <span className="vehicle-count">
+          {vehicleList.length} vehicle(s) active
+        </span>
         <button
-          className={`waiting-btn ${reportSent ? "sent" : ""}`}
-          onClick={reportWaiting}
+          className={`waiting-btn ${isWaiting ? "active" : ""}`}
+          onClick={handleWaiting}
         >
-          {reportSent ? "✓ Reported!" : "🙋 I'm Waiting for a Jeep"}
+          {isWaiting ? "🟢 Waiting..." : "🟡 I'm Waiting for a Jeep"}
         </button>
       </div>
 
-      {eta && (
-        <div className="eta-banner">
-          <div className="eta-main">
-            <span className="eta-icon">🚌</span>
-            <div>
-              <div className="eta-time">{eta.eta} mins away</div>
-              <div className="eta-route">
-                {eta.nearest.route} · {eta.nearest.speed} km/h
+      {/* Vehicle List (compact) */}
+      <div className="commuter-list">
+        {vehicleList.length === 0 ? (
+          <p className="empty-state">No vehicles nearby</p>
+        ) : (
+          vehicleList.map((v) => (
+            <div key={v.vehicle_id} className="vehicle-item">
+              <span className="vehicle-icon">🚌</span>
+              <div className="vehicle-info">
+                <div className="vehicle-id">{v.vehicle_id}</div>
+                <div className="vehicle-route">{v.route}</div>
               </div>
+              <div className="vehicle-speed">{v.speed} km/h</div>
             </div>
-          </div>
-          <div className="eta-vehicle">{eta.nearest.vehicle_id}</div>
-        </div>
-      )}
-
-      <div className="content">
-        <LiveMap vehicles={vehicles} />
-        <VehicleList vehicles={vehicles} />
+          ))
+        )}
       </div>
     </div>
   );
