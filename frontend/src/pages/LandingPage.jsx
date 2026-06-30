@@ -35,7 +35,7 @@ export default function LandingPage({ setActiveView }) {
         </button>
         <button
           className="cta-button secondary"
-          onClick={() => setActiveView("admin")}
+          onClick={() => setActiveView("operator")}
         >
           <span className="cta-icon">📊</span>
           <div>

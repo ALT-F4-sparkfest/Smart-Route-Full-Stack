@@ -1,41 +1,43 @@
-// src/pages/AdminDashboard.jsx
+// src/pages/OperatorView.jsx
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import LiveMap from "../components/LiveMap";
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
+import hotspots from "../data/demandHotspots.json";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-export default function AdminDashboard() {
+export default function OperatorView({ onBack }) {
   const [vehicles, setVehicles] = useState({});
   const [waiters, setWaiters] = useState([]);
   const [connected, setConnected] = useState(false);
+  const [alerts, setAlerts] = useState([]);
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io(BACKEND_URL, {
-      transports: ["websocket"],
-    });
+    socketRef.current = io(BACKEND_URL, { transports: ["websocket"] });
 
     socketRef.current.on("connect", () => {
       setConnected(true);
       fetch(`${BACKEND_URL}/commuter/waiting/all`)
         .then((r) => r.json())
-        .then((d) => setWaiters(d.waiters || []));
+        .then((d) => setWaiters(d.waiters || []))
+        .catch(() => {});
     });
 
     socketRef.current.on("disconnect", () => setConnected(false));
 
     socketRef.current.on("vehicle-update", (vehicleData) => {
-      setVehicles((prev) => ({
-        ...prev,
-        [vehicleData.id]: vehicleData,
-      }));
+      setVehicles((prev) => ({ ...prev, [vehicleData.id]: vehicleData }));
     });
 
     socketRef.current.on("waiting-update", (data) => {
       setWaiters(data.waiters || []);
+    });
+
+    socketRef.current.on("bunching-alert", (alert) => {
+      setAlerts((prev) => [alert, ...prev].slice(0, 20));
     });
 
     return () => {
@@ -44,16 +46,34 @@ export default function AdminDashboard() {
   }, []);
 
   const vehicleList = Object.values(vehicles);
+  const topHotspots = [...hotspots]
+    .sort((a, b) => b.demand_score - a.demand_score)
+    .slice(0, 5);
 
   return (
-    <div className="page-content">
+    <div className="operator-mode">
+      <div className="operator-topbar">
+        {onBack && (
+          <button className="back-btn" onClick={onBack} aria-label="Back">
+            ← Back
+          </button>
+        )}
+        <h1 className="operator-title">Fleet Operations</h1>
+        <span className="connection-pill inline">
+          {connected ? "🔵 Live" : "🔴 Offline"}
+        </span>
+      </div>
+
       <KPICards />
       <TravelTimeChart />
-      <div className="dashboard-layout">
-        <div className="dashboard-map">
+
+      <div className="operator-layout">
+        {/* Map container with explicit height */}
+        <div className="operator-map" style={{ height: "340px" }}>
           <LiveMap vehicles={vehicles} waiters={waiters} />
         </div>
-        <div className="dashboard-sidebar">
+
+        <div className="operator-sidebar">
           <div className="dash-section">
             <h2 className="panel-title">Fleet Overview</h2>
             <div className="stat-cards">
@@ -69,7 +89,7 @@ export default function AdminDashboard() {
                 <span className="stat-card-value">
                   {vehicleList.length > 0
                     ? Math.round(
-                        vehicleList.reduce((a, v) => a + v.speed, 0) /
+                        vehicleList.reduce((a, v) => a + (v.speed || 0), 0) /
                           vehicleList.length,
                       )
                     : 0}
@@ -78,6 +98,17 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          {alerts.length > 0 && (
+            <div className="dash-section alert-section">
+              <h2 className="panel-title">⚠️ Alerts</h2>
+              {alerts.map((a, i) => (
+                <div key={a.alert_id || i} className="alert-card">
+                  {a.message}
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="dash-section">
             <h2 className="panel-title">Active Vehicles</h2>
@@ -116,6 +147,18 @@ export default function AdminDashboard() {
 
           <div className="dash-section">
             <h2 className="panel-title">Demand Hotspots</h2>
+            {topHotspots.map((h, i) => (
+              <div key={i} className="hotspot-card">
+                <div className="hotspot-name">{h.stop_name}</div>
+                <div className="hotspot-meta">
+                  {h.route_id} · {h.avg_wait_minutes} min avg wait
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="dash-section">
+            <h2 className="panel-title">Waiting Commuters</h2>
             {waiters.length === 0 ? (
               <div className="empty-state">No commuters waiting yet</div>
             ) : (

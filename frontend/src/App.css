@@ -907,3 +907,460 @@ body {
   width: 100%;
   pointer-events: auto;
 }
+
+/* ==================== APPEND TO App.css ==================== */
+/* New styles for separated Commuter / Operator modes */
+
+.app-fullscreen {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ==================== COMMUTER MODE ==================== */
+.commuter-mode {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  background: #f5f5f5;
+}
+
+.commuter-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 12px;
+  color: #1a237e;
+  font-weight: 600;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #eee;
+  border-top-color: #ff6b00;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.commuter-fullmap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.me-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1a237e;
+  border: 3px solid white;
+  box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.25);
+}
+
+.back-btn-overlay {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.connection-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.connection-pill.inline {
+  position: static;
+  box-shadow: none;
+  background: #f0f0f0;
+}
+
+.commuter-sheet {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  padding: 10px 18px 20px;
+  z-index: 5;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 4px;
+  margin: 0 auto 14px;
+}
+
+.sheet-destination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.sheet-icon {
+  font-size: 18px;
+}
+
+.sheet-destination input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+}
+
+.sheet-eta-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff4ea;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.sheet-eta-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ff6b00;
+  color: white;
+  border-radius: 12px;
+  padding: 8px 14px;
+  min-width: 60px;
+}
+
+.sheet-eta-number {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.sheet-eta-unit {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.sheet-eta-route {
+  font-weight: 700;
+  color: #1a237e;
+  font-size: 15px;
+}
+
+.sheet-eta-sub {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.sheet-empty {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  padding: 16px 0;
+}
+
+.waiting-btn-full {
+  width: 100%;
+  background: #ff6b00;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.waiting-btn-full.active {
+  background: #00c853;
+}
+
+/* ==================== OPERATOR MODE ==================== */
+.operator-mode {
+  height: 100vh;
+  overflow-y: auto;
+  background: #f5f5f5;
+  padding: 16px;
+}
+
+.operator-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  border: none;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.operator-title {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.operator-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.operator-map {
+  height: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.operator-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alert-section .alert-card {
+  background: #fff3e0;
+  border-left: 3px solid #ff6b00;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #663c00;
+}
+
+.hotspot-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+
+.hotspot-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a237e;
+}
+
+.hotspot-meta {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Desktop: split map (60%) + sidebar (40%) */
+@media (min-width: 768px) {
+  .operator-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .operator-map {
+    flex: 0 0 60%;
+    height: 600px;
+  }
+
+  .operator-sidebar {
+    flex: 0 0 40%;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+}
+
+.back-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* Header */
+.commuter-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #1a237e;
+  color: white;
+  z-index: 10;
+  flex-shrink: 0;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.brand {
+  margin-left: 16px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+/* Body: map + side panel */
+.commuter-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.commuter-map-container {
+  flex: 1;
+  height: 100%;
+}
+.commuter-side-panel {
+  width: 320px;
+  background: #f8f9fa;
+  padding: 16px;
+  overflow-y: auto;
+  border-left: 1px solid #e0e0e0;
+  display: none; /* hidden on mobile */
+}
+.panel-section {
+  margin-bottom: 20px;
+}
+.panel-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a237e;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #ff6b00;
+  padding-bottom: 4px;
+}
+.vehicle-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+.destination-input {
+  display: flex;
+  gap: 8px;
+}
+.destination-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.destination-input button {
+  padding: 8px 16px;
+  background: #ff6b00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.eta-display {
+  margin-top: 8px;
+  padding: 8px;
+  background: #e3f2fd;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.waiting-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff6b00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.waiting-btn.active {
+  background: #00c853;
+}
+.connection-status {
+  margin-top: 8px;
+  font-size: 14px;
+  text-align: center;
+  color: #666;
+}
+
+/* Show side panel on larger screens */
+@media (min-width: 768px) {
+  .commuter-side-panel {
+    display: block;
+  }
+}
+
+/* For mobile, keep the bottom sheet approach if you prefer, but we removed it. Adjust as needed. */
+
+.commuter-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #1a237e;
+  color: white;
+  z-index: 20; /* high to stay above map */
+  flex-shrink: 0;
+  position: relative;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px; /* larger touch area */
+  min-height: 44px; /* accessibility */
+}
+.brand {
+  margin-left: 16px;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
