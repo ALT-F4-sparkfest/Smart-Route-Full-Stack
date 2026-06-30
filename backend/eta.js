@@ -1,6 +1,7 @@
 // eta.js
 const db = require('./firebase');
-const stops = require('./routes/stops.json');
+const stopsByRoute = require('./routes/stops.json');
+const vehicleRoutes = require('./routes/vehicleRoutes.json');
 
 function haversineDistance(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -35,13 +36,19 @@ function shouldShowWaiting(secondsStationary, speedKmh) {
   return speedKmh < 1 && secondsStationary > 180;
 }
 
+function getStopsForVehicle(vehicleId) {
+  const routeId = vehicleRoutes[vehicleId];
+  return { routeId, stops: stopsByRoute[routeId] || [] };
+}
+
 async function calculateEtaToStop(vehicleId, stopId) {
   const vehicleDoc = await db.collection('vehicles').doc(vehicleId).get();
   if (!vehicleDoc.exists) return { error: 'Vehicle not found' };
 
   const vehicle = vehicleDoc.data();
+  const { routeId, stops } = getStopsForVehicle(vehicleId);
   const stop = stops.find(s => s.id === stopId);
-  if (!stop) return { error: 'Stop not found' };
+  if (!stop) return { error: `Stop not found for route ${routeId}` };
 
   const distanceKm = haversineDistance(vehicle.lat, vehicle.lng, stop.lat, stop.lng);
   const effectiveSpeed = getEffectiveSpeed(vehicle.speed, vehicle.recentSpeeds);
@@ -86,6 +93,7 @@ async function calculateEtaToStop(vehicleId, stopId) {
 }
 
 async function calculateEtasForAllStops(vehicleId) {
+  const { stops } = getStopsForVehicle(vehicleId);
   const results = {};
   for (const stop of stops) {
     results[stop.id] = await calculateEtaToStop(vehicleId, stop.id);

@@ -1,3 +1,288 @@
-[
-  { "id": "stop1", "name": "Test Stop", "lat": 14.5800, "lng": 121.0890 }
-]
+{
+  "CUBAO-MAKATI": [
+    {
+      "id": "stop1",
+      "name": "Araneta Center, Cubao",
+      "lat": 14.5808,
+      "lng": 121.0885
+    },
+    {
+      "id": "stop2",
+      "name": "EDSA Cubao",
+      "lat": 14.5802,
+      "lng": 121.090667
+    },
+    {
+      "id": "stop3",
+      "name": "Ortigas Center",
+      "lat": 14.57855,
+      "lng": 121.0955
+    },
+    {
+      "id": "stop4",
+      "name": "Megamall/SM Megamall",
+      "lat": 14.5698,
+      "lng": 121.10528
+    },
+    {
+      "id": "stop5",
+      "name": "Makati CBD",
+      "lat": 14.51,
+      "lng": 121.135
+    },
+    {
+      "id": "stop6",
+      "name": "Ayala Avenue",
+      "lat": 14.513333,
+      "lng": 121.135
+    },
+    {
+      "id": "stop7",
+      "name": "Robinsons Galleria",
+      "lat": 14.564375,
+      "lng": 121.112375
+    },
+    {
+      "id": "stop8",
+      "name": "Greenbelt",
+      "lat": 14.520294,
+      "lng": 121.134853
+    },
+    {
+      "id": "stop9",
+      "name": "Makati Blvd Junction",
+      "lat": 14.559375,
+      "lng": 121.115312
+    },
+    {
+      "id": "stop10",
+      "name": "Salcedo Village",
+      "lat": 14.549375,
+      "lng": 121.120313
+    }
+  ],
+  "CUBAO-MARIKINA": [
+    {
+      "id": "stop1",
+      "name": "Araneta Center, Cubao",
+      "lat": 14.5808,
+      "lng": 121.0885
+    },
+    {
+      "id": "stop2",
+      "name": "Aurora Boulevard",
+      "lat": 14.5792,
+      "lng": 121.084
+    },
+    {
+      "id": "stop3",
+      "name": "Kapasigan",
+      "lat": 14.575967,
+      "lng": 121.074667
+    },
+    {
+      "id": "stop4",
+      "name": "Katipunan Ave",
+      "lat": 14.574688,
+      "lng": 121.064375
+    },
+    {
+      "id": "stop5",
+      "name": "Marikina CBD",
+      "lat": 14.545,
+      "lng": 121.02
+    },
+    {
+      "id": "stop6",
+      "name": "Riverbanks Center",
+      "lat": 14.546667,
+      "lng": 121.021667
+    },
+    {
+      "id": "stop7",
+      "name": "Bayanihan Ave",
+      "lat": 14.569688,
+      "lng": 121.054375
+    },
+    {
+      "id": "stop8",
+      "name": "Marikina City Hall",
+      "lat": 14.5505,
+      "lng": 121.0255
+    },
+    {
+      "id": "stop9",
+      "name": "Marikina Pasig Bridge",
+      "lat": 14.555238,
+      "lng": 121.030238
+    }
+  ],
+  "CUBAO-PASIG": [
+    {
+      "id": "stop1",
+      "name": "Araneta Center, Cubao",
+      "lat": 14.5808,
+      "lng": 121.0885
+    },
+    {
+      "id": "stop2",
+      "name": "Santolan Road",
+      "lat": 14.5822,
+      "lng": 121.089
+    },
+    {
+      "id": "stop3",
+      "name": "Kalentong",
+      "lat": 14.585714,
+      "lng": 121.090286
+    },
+    {
+      "id": "stop4",
+      "name": "Pasig City Hall",
+      "lat": 14.590625,
+      "lng": 121.092375
+    },
+    {
+      "id": "stop5",
+      "name": "Pasig CBD",
+      "lat": 14.595294,
+      "lng": 121.095176
+    },
+    {
+      "id": "stop6",
+      "name": "Ortigas Avenue",
+      "lat": 14.600312,
+      "lng": 121.098125
+    },
+    {
+      "id": "stop7",
+      "name": "Pasig Blvd",
+      "lat": 14.61,
+      "lng": 121.102
+    }
+  ],
+  "CUBAO-SANJUAN": [
+    {
+      "id": "stop1",
+      "name": "Araneta Center, Cubao",
+      "lat": 14.5808,
+      "lng": 121.0885
+    },
+    {
+      "id": "stop2",
+      "name": "Ilalim Road",
+      "lat": 14.5812,
+      "lng": 121.085667
+    },
+    {
+      "id": "stop3",
+      "name": "San Juan Main St",
+      "lat": 14.5822,
+      "lng": 121.079333
+    },
+    {
+      "id": "stop4",
+      "name": "San Juan Market",
+      "lat": 14.585176,
+      "lng": 121.069706
+    },
+    {
+      "id": "stop5",
+      "name": "San Juan CBD",
+      "lat": 14.588286,
+      "lng": 121.064286
+    }
+  ],
+  "CUBAO-DIVISORIA": [
+    {
+      "id": "stop1",
+      "name": "Araneta Center, Cubao",
+      "lat": 14.5808,
+      "lng": 121.0885
+    },
+    {
+      "id": "stop2",
+      "name": "Cubao Corner",
+      "lat": 14.580367,
+      "lng": 121.087733
+    },
+    {
+      "id": "stop3",
+      "name": "SM City Cubao",
+      "lat": 14.578,
+      "lng": 121.082
+    },
+    {
+      "id": "stop4",
+      "name": "Aurora Boulevard",
+      "lat": 14.577333,
+      "lng": 121.079667
+    },
+    {
+      "id": "stop5",
+      "name": "Dapitan-Legarda",
+      "lat": 14.57586,
+      "lng": 121.074698
+    },
+    {
+      "id": "stop6",
+      "name": "Tutuban Center, Divisoria",
+      "lat": 14.548,
+      "lng": 120.995
+    },
+    {
+      "id": "stop7",
+      "name": "Escolta",
+      "lat": 14.548667,
+      "lng": 120.996667
+    },
+    {
+      "id": "stop8",
+      "name": "Legarda",
+      "lat": 14.568,
+      "lng": 121.058
+    },
+    {
+      "id": "stop9",
+      "name": "Recoletos",
+      "lat": 14.5504,
+      "lng": 121.002
+    },
+    {
+      "id": "stop10",
+      "name": "Recto Avenue",
+      "lat": 14.5665,
+      "lng": 121.056
+    },
+    {
+      "id": "stop11",
+      "name": "Raon",
+      "lat": 14.564786,
+      "lng": 121.053714
+    },
+    {
+      "id": "stop12",
+      "name": "Antiguitone",
+      "lat": 14.5524,
+      "lng": 121.012
+    },
+    {
+      "id": "stop13",
+      "name": "Bambang",
+      "lat": 14.554067,
+      "lng": 121.020333
+    },
+    {
+      "id": "stop14",
+      "name": "Quinta Market",
+      "lat": 14.561,
+      "lng": 121.0475
+    },
+    {
+      "id": "stop15",
+      "name": "San Fernando",
+      "lat": 14.559333,
+      "lng": 121.042667
+    }
+  ]
+}
