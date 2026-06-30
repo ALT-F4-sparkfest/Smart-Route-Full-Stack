@@ -1,16 +1,15 @@
 // src/pages/CommuterView.jsx
 
-import { useState, useEffect, useRef } from "react";
-import io from "socket.io-client";
+import { useState, useEffect } from "react";
 
 import LiveMap from "../components/map/LiveMap";
 import BottomSheet from "../components/commuter/BottomSheet";
 import SearchOverlay from "../components/commuter/SearchOverlay";
 
-import { useConnectionStatus } from "../hooks/useConnectionStatus";
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
+import { useDemoSimulation } from "../hooks/useDemoSimulation";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const DEMO_MODE = true;
 
 function distance(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -28,73 +27,32 @@ function distance(lat1, lon1, lat2, lon2) {
 }
 
 export default function CommuterView({ onBack }) {
-  const [vehicles, setVehicles] = useState({});
+  const demo = useDemoSimulation();
+
   const [destination, setDestination] = useState("");
   const [eta, setEta] = useState(null);
   const [isWaiting, setIsWaiting] = useState(false);
-  const [connected, setConnected] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
   const [loadingEta, setLoadingEta] = useState(false);
 
-  const socketRef = useRef(null);
-
-  const { status, markUpdated } = useConnectionStatus(connected);
+  const [userLocation, setUserLocation] = useState({
+    lat: 14.625,
+    lng: 121.048,
+  });
 
   useEffect(() => {
-    socketRef.current = io(BACKEND_URL, {
-      transports: ["websocket"],
-    });
-
-    socketRef.current.on("connect", () => {
-      setConnected(true);
-    });
-
-    socketRef.current.on("disconnect", () => {
-      setConnected(false);
-    });
-
-    socketRef.current.on("vehicle-update", (vehicle) => {
-      setVehicles((prev) => ({
-        ...prev,
-        [vehicle.id]: vehicle,
-      }));
-
-      markUpdated();
-    });
-
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        (position) =>
           setUserLocation({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
-        },
+          }),
         () => {},
       );
     }
-
-    fetch(`${BACKEND_URL}/vehicles`)
-      .then((res) => res.json())
-      .then((data) => {
-        const map = {};
-
-        data.forEach((vehicle) => {
-          map[vehicle.id || vehicle.vehicle_id] = vehicle;
-        });
-
-        setVehicles(map);
-
-        markUpdated();
-      })
-      .catch(() => {});
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
   }, []);
 
-  const vehicleList = Object.values(vehicles);
+  const vehicleList = DEMO_MODE ? demo.vehicles : [];
 
   const nearest = userLocation
     ? vehicleList
@@ -107,50 +65,26 @@ export default function CommuterView({ onBack }) {
             vehicle.lng,
           ),
         }))
-        .filter((vehicle) => vehicle.dist <= 3)
         .sort((a, b) => a.dist - b.dist)
     : vehicleList;
 
   const handleWaiting = () => {
-    const next = !isWaiting;
-
-    setIsWaiting(next);
-
-    if (next && socketRef.current?.connected) {
-      socketRef.current.emit("commuter-waiting", {
-        lat: userLocation?.lat || 14.5995,
-        lng: userLocation?.lng || 120.9842,
-        route: nearest[0]?.route || "unknown",
-      });
-    }
+    setIsWaiting(!isWaiting);
   };
 
   const handleDestinationSubmit = async () => {
     if (!destination.trim()) return;
-    if (nearest.length === 0) return;
 
     setLoadingEta(true);
 
-    try {
-      const vehicle = nearest[0];
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-      const response = await fetch(
-        `${BACKEND_URL}/vehicles/${vehicle.id}/etas`,
-      );
+    setEta({
+      eta_minutes: nearest.length ? nearest[0].eta : 6,
+      route: nearest.length ? nearest[0].route : "Katipunan - Cubao",
+    });
 
-      if (!response.ok) throw new Error();
-
-      const data = await response.json();
-
-      setEta(data);
-    } catch {
-      setEta({
-        eta_minutes: "—",
-        error: "Could not retrieve ETA",
-      });
-    } finally {
-      setLoadingEta(false);
-    }
+    setLoadingEta(false);
   };
 
   return (
@@ -163,7 +97,7 @@ export default function CommuterView({ onBack }) {
         <span className="brand">🚌 BUSINA</span>
 
         <div style={{ marginLeft: "auto" }}>
-          <ConnectionStatusPill status={status} />
+          <ConnectionStatusPill status="connected" />
         </div>
       </div>
 
@@ -179,7 +113,6 @@ export default function CommuterView({ onBack }) {
           vehicles={nearest}
           userLocation={userLocation}
           mapId="commuter-map"
-          onRefresh={() => {}}
         />
 
         <SearchOverlay
@@ -189,7 +122,12 @@ export default function CommuterView({ onBack }) {
           loading={loadingEta}
         />
 
-        <BottomSheet nearest={nearest} eta={eta} onWait={handleWaiting} />
+        <BottomSheet
+          nearest={nearest}
+          eta={eta}
+          waiting={isWaiting}
+          onWait={handleWaiting}
+        />
       </div>
     </div>
   );
