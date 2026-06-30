@@ -892,3 +892,18 @@ body {
 .dashboard-map {
   pointer-events: auto; /* ensure map receives events */
 }
+
+.dashboard-map {
+  height: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.dashboard-map .map-wrapper {
+  height: 100%;
+  width: 100%;
+  pointer-events: auto;
+}

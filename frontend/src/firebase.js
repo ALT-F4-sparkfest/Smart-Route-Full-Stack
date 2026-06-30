@@ -1,15 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBGTwYHHNBcsykTat5WZ2NpZPk_d5tEsYI",
+  authDomain: "smart-route-131ab.firebaseapp.com",
+  projectId: "smart-route-131ab",
+  storageBucket: "smart-route-131ab.firebasestorage.app",
+  messagingSenderId: "576094018822",
+  appId: "1:576094018822:web:1e50ed33593d67eff85287",
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
+export const db = getFirestore(app);
