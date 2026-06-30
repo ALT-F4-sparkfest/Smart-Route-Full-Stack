@@ -1,9 +1,8 @@
 // src/pages/OperatorView.jsx
+import FleetMap from "../components/operator/FleetMap";
 
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
-
-import LiveMap from "../components/map/LiveMap";
 
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
@@ -100,13 +99,7 @@ export default function OperatorView({ onBack }) {
       <TravelTimeChart />
 
       <div className="operator-layout">
-        <div className="operator-map" style={{ height: "340px" }}>
-          <LiveMap
-            vehicles={vehicleList}
-            mapId="operator-map"
-            onRefresh={() => {}}
-          />
-        </div>
+        <FleetMap vehicles={vehicleList} waitingCommuters={waiters} />
 
         <div className="operator-sidebar">
           <div className="dash-section">

@@ -1,65 +1,68 @@
 import Card from "../ui/Card";
-import Button from "../ui/Button";
+import { Bus, Gauge, Users, Route, Clock } from "lucide-react";
 
-import { Bus, Clock3, Gauge, MapPinned, X } from "lucide-react";
-
-export default function VehiclePopup({ vehicle, onClose }) {
+export default function VehiclePopup({ vehicle }) {
   if (!vehicle) return null;
 
   return (
-    <Card>
+    <Card title={`Vehicle ${vehicle.id}`}>
+      <div
+        style={{
+          display: "grid",
+          gap: 12,
+        }}
+      >
+        <Info
+          icon={<Bus size={18} />}
+          label="Status"
+          value={vehicle.status || "Online"}
+        />
+
+        <Info
+          icon={<Gauge size={18} />}
+          label="Speed"
+          value={`${vehicle.speed || 0} km/h`}
+        />
+
+        <Info
+          icon={<Users size={18} />}
+          label="Passengers"
+          value={vehicle.passengers ?? "--"}
+        />
+
+        <Info
+          icon={<Route size={18} />}
+          label="Route"
+          value={vehicle.route || "Unknown"}
+        />
+
+        <Info icon={<Clock size={18} />} label="Updated" value="Just now" />
+      </div>
+    </Card>
+  );
+}
+
+function Info({ icon, label, value }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          gap: 8,
           alignItems: "center",
-          marginBottom: 20,
         }}
       >
-        <h3>{vehicle.id}</h3>
-
-        <button
-          onClick={onClose}
-          style={{
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-          }}
-        >
-          <X size={20} />
-        </button>
+        {icon}
+        <strong>{label}</strong>
       </div>
 
-      <div className="popup-row">
-        <Bus size={18} />
-        <span>{vehicle.route}</span>
-      </div>
-
-      <div className="popup-row">
-        <Gauge size={18} />
-        <span>{vehicle.speed} km/h</span>
-      </div>
-
-      <div className="popup-row">
-        <Clock3 size={18} />
-        <span>ETA 5 mins</span>
-      </div>
-
-      <div className="popup-row">
-        <MapPinned size={18} />
-        <span>
-          {vehicle.lat.toFixed(4)}, {vehicle.lng.toFixed(4)}
-        </span>
-      </div>
-
-      <Button
-        style={{
-          marginTop: 20,
-          width: "100%",
-        }}
-      >
-        Track Vehicle
-      </Button>
-    </Card>
+      <span>{value}</span>
+    </div>
   );
 }

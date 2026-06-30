@@ -60,10 +60,10 @@ export default function LiveMap({
           <div
             style={{
               position: "absolute",
-              bottom: "20px",
-              left: "20px",
-              zIndex: 999,
-              width: "320px",
+              top: 20,
+              right: 20,
+              width: 320,
+              zIndex: 1000,
             }}
           >
             <VehiclePopup
