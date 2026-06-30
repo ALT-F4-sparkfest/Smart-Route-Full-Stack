@@ -1,4 +1,4 @@
-import { Search, Navigation } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 
 export default function SearchOverlay({
   destination,
@@ -10,55 +10,124 @@ export default function SearchOverlay({
     <div
       style={{
         position: "absolute",
-        top: 22,
+        top: 20,
         left: "50%",
         transform: "translateX(-50%)",
-        width: "92%",
-        maxWidth: 640,
-        zIndex: 1000,
+        width: "min(92%, 560px)",
+        zIndex: 100,
       }}
     >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          background: "rgba(255,255,255,.92)",
+          gap: 14,
+          background: "rgba(255,255,255,.90)",
           backdropFilter: "blur(18px)",
-          borderRadius: 20,
+          WebkitBackdropFilter: "blur(18px)",
+          borderRadius: 22,
           padding: "14px 18px",
-          boxShadow: "0 18px 45px rgba(0,0,0,.18)",
+          border: "1px solid rgba(255,255,255,.4)",
+          boxShadow: "0 18px 40px rgba(15,23,42,.15)",
         }}
       >
-        <Search color="#2563EB" />
+        <div
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 14,
+            background: "#DBEAFE",
+            color: "#2563EB",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Search size={20} />
+        </div>
 
-        <input
-          value={destination}
-          onChange={(e) => setDestination(e.target.value)}
-          placeholder="Where are you going?"
+        <div
           style={{
             flex: 1,
-            border: "none",
-            outline: "none",
-            background: "transparent",
-            fontSize: 16,
           }}
-        />
+        >
+          <div
+            style={{
+              fontSize: 12,
+              color: "#64748B",
+              marginBottom: 2,
+            }}
+          >
+            Destination
+          </div>
+
+          <input
+            type="text"
+            placeholder="Where are you going?"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            style={{
+              width: "100%",
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              fontSize: 16,
+              fontWeight: 600,
+              color: "#0F172A",
+            }}
+          />
+        </div>
 
         <button
           onClick={onSearch}
+          disabled={loading}
           style={{
+            width: 52,
+            height: 52,
             border: "none",
-            background: "#2563EB",
-            color: "#fff",
-            width: 44,
-            height: 44,
-            borderRadius: 14,
+            borderRadius: 18,
             cursor: "pointer",
+            background: "linear-gradient(135deg,#2563EB,#3B82F6)",
+            color: "#fff",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            boxShadow: "0 10px 25px rgba(37,99,235,.35)",
+            transition: ".2s",
           }}
         >
-          {loading ? "..." : <Navigation size={18} />}
+          {loading ? "..." : <MapPin size={20} />}
         </button>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          marginTop: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        {["Cubao", "Katipunan", "SM North", "UP Diliman"].map((route) => (
+          <button
+            key={route}
+            onClick={() => setDestination(route)}
+            style={{
+              border: "none",
+              borderRadius: 999,
+              background: "rgba(255,255,255,.88)",
+              backdropFilter: "blur(12px)",
+              padding: "8px 14px",
+              cursor: "pointer",
+              fontWeight: 600,
+              color: "#334155",
+              boxShadow: "0 8px 18px rgba(0,0,0,.10)",
+            }}
+          >
+            {route}
+          </button>
+        ))}
       </div>
     </div>
   );
