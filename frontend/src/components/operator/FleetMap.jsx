@@ -9,25 +9,77 @@ export default function FleetMap({
   onVehicleSelect,
 }) {
   return (
-    <div
+    <section
       style={{
-        height: 420,
+        background: "#fff",
         borderRadius: 20,
-        overflow: "hidden",
+        padding: 20,
+        boxShadow: "0 10px 30px rgba(15,23,42,.08)",
         marginBottom: 24,
-        boxShadow: "0 12px 40px rgba(0,0,0,.12)",
       }}
     >
-      <LiveMap
-        vehicles={vehicles}
-        mapId="operator-map"
-        showPopup={false}
-        onVehicleSelect={onVehicleSelect}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+        }}
       >
-        {waitingCommuters.map((person, index) => (
-          <WaitingMarker key={person.id || index} person={person} />
-        ))}
-      </LiveMap>
-    </div>
+        <div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: 20,
+              fontWeight: 700,
+            }}
+          >
+            Live Fleet Map
+          </h2>
+
+          <p
+            style={{
+              margin: "4px 0 0",
+              color: "#64748b",
+              fontSize: 14,
+            }}
+          >
+            {vehicles.length} active vehicles tracked
+          </p>
+        </div>
+
+        <div
+          style={{
+            background: "#dcfce7",
+            color: "#15803d",
+            padding: "6px 14px",
+            borderRadius: 999,
+            fontWeight: 600,
+            fontSize: 13,
+          }}
+        >
+          ● Live
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: 550,
+          overflow: "hidden",
+          borderRadius: 18,
+        }}
+      >
+        <LiveMap
+          vehicles={vehicles}
+          mapId="operator-map"
+          showPopup={false}
+          onVehicleSelect={onVehicleSelect}
+        >
+          {waitingCommuters.map((person, index) => (
+            <WaitingMarker key={person.id || index} person={person} />
+          ))}
+        </LiveMap>
+      </div>
+    </section>
   );
 }

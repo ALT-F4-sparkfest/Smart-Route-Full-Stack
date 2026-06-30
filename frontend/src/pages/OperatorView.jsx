@@ -13,9 +13,13 @@ import TravelTimeChart from "../components/TravelTimeChart";
 import hotspots from "../data/demandHotspots.json";
 
 import { useConnectionStatus } from "../hooks/useConnectionStatus";
+import { useDemoSimulation } from "../hooks/useDemoSimulation";
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
+// Toggle this when backend becomes available again
+const DEMO_MODE = true;
 
 export default function OperatorView({ onBack }) {
   const [vehicles, setVehicles] = useState({});
@@ -23,14 +27,19 @@ export default function OperatorView({ onBack }) {
   const [connected, setConnected] = useState(false);
   const [alerts, setAlerts] = useState([]);
 
-  // NEW
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const socketRef = useRef(null);
 
+  // Demo simulation
+  const demo = useDemoSimulation();
+
   const { status, markUpdated } = useConnectionStatus(connected);
 
   useEffect(() => {
+    // Skip backend completely while demoing
+    if (DEMO_MODE) return;
+
     socketRef.current = io(BACKEND_URL, {
       transports: ["websocket"],
     });
@@ -80,9 +89,14 @@ export default function OperatorView({ onBack }) {
       });
 
     return () => socketRef.current?.disconnect();
-  }, []);
+  }, [markUpdated]);
 
-  const vehicleList = Object.values(vehicles);
+  // Switch between demo data and backend data
+  const vehicleList = DEMO_MODE ? demo.vehicles : Object.values(vehicles);
+
+  const waitingList = DEMO_MODE ? demo.waiters : waiters;
+
+  const alertList = DEMO_MODE ? demo.alerts : alerts;
 
   const topHotspots = [...hotspots]
     .sort((a, b) => b.demand_score - a.demand_score)
@@ -97,23 +111,27 @@ export default function OperatorView({ onBack }) {
 
         <h1 className="operator-title">Fleet Operations</h1>
 
-        <ConnectionStatusPill status={status} inline />
+        <ConnectionStatusPill
+          status={DEMO_MODE ? "connected" : status}
+          inline
+        />
       </div>
 
       <KPICards />
 
-      {/* NEW Fleet Map */}
       <FleetMap
         vehicles={vehicleList}
-        waitingCommuters={waiters}
+        waitingCommuters={waitingList}
         onVehicleSelect={setSelectedVehicle}
       />
 
       <TravelTimeChart />
 
+      {/* Optional if your panel already works */}
+      <AIRecommendationPanel />
+
       <div className="operator-layout">
         <div className="operator-sidebar">
-          {/* NEW Vehicle Details */}
           <VehicleDetailsPanel vehicle={selectedVehicle} />
 
           <div className="dash-section">
@@ -127,7 +145,7 @@ export default function OperatorView({ onBack }) {
               </div>
 
               <div className="stat-card">
-                <span className="stat-card-value">{waiters.length}</span>
+                <span className="stat-card-value">{waitingList.length}</span>
 
                 <span className="stat-card-label">Waiting Commuters</span>
               </div>
@@ -149,12 +167,15 @@ export default function OperatorView({ onBack }) {
             </div>
           </div>
 
-          {alerts.length > 0 && (
+          {alertList.length > 0 && (
             <div className="dash-section alert-section">
               <h2 className="panel-title">Alerts</h2>
 
-              {alerts.map((alert, index) => (
-                <div key={alert.alert_id || index} className="alert-card">
+              {alertList.map((alert, index) => (
+                <div
+                  key={alert.alert_id || alert.id || index}
+                  className="alert-card"
+                >
                   {alert.message}
                 </div>
               ))}
