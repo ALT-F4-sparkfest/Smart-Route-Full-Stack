@@ -25,3 +25,65 @@ body {
 
   font-size: 15px;
 }
+
+.search-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: white;
+
+  padding: 12px 18px;
+
+  border-radius: 999px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+
+  width: min(650px, 90%);
+}
+
+.search-overlay input {
+  border: none;
+
+  outline: none;
+
+  font-size: 15px;
+
+  flex: 1;
+
+  background: transparent;
+}
+
+.search-overlay button {
+  width: 42px;
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #2563eb;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.search-overlay button:hover {
+  transform: scale(1.08);
+}

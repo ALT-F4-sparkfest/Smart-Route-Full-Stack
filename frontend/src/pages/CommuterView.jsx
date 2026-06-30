@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
 import LiveMap from "../components/map/LiveMap";
+import BottomSheet from "../components/commuter/BottomSheet";
+import SearchOverlay from "../components/commuter/SearchOverlay";
 
 import { useConnectionStatus } from "../hooks/useConnectionStatus";
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
@@ -29,13 +31,9 @@ export default function CommuterView({ onBack }) {
   const [vehicles, setVehicles] = useState({});
   const [destination, setDestination] = useState("");
   const [eta, setEta] = useState(null);
-
   const [isWaiting, setIsWaiting] = useState(false);
-
   const [connected, setConnected] = useState(false);
-
   const [userLocation, setUserLocation] = useState(null);
-
   const [loadingEta, setLoadingEta] = useState(false);
 
   const socketRef = useRef(null);
@@ -129,7 +127,6 @@ export default function CommuterView({ onBack }) {
 
   const handleDestinationSubmit = async () => {
     if (!destination.trim()) return;
-
     if (nearest.length === 0) return;
 
     setLoadingEta(true);
@@ -170,72 +167,29 @@ export default function CommuterView({ onBack }) {
         </div>
       </div>
 
-      <div className="commuter-body">
-        <div className="commuter-map-container">
-          <LiveMap
-            vehicles={nearest}
-            userLocation={userLocation}
-            mapId="commuter-map"
-            onRefresh={() => {}}
-          />
-        </div>
+      <div
+        className="commuter-body"
+        style={{
+          position: "relative",
+          height: "calc(100vh - 70px)",
+          width: "100%",
+        }}
+      >
+        <LiveMap
+          vehicles={nearest}
+          userLocation={userLocation}
+          mapId="commuter-map"
+          onRefresh={() => {}}
+        />
 
-        <div className="commuter-side-panel">
-          <div className="panel-section">
-            <h3>Nearby Vehicles</h3>
+        <SearchOverlay
+          destination={destination}
+          setDestination={setDestination}
+          onSearch={handleDestinationSubmit}
+          loading={loadingEta}
+        />
 
-            <div className="vehicle-list">
-              {nearest.length === 0 ? (
-                <p>No vehicles nearby.</p>
-              ) : (
-                nearest.slice(0, 5).map((vehicle) => (
-                  <div key={vehicle.id} className="vehicle-item">
-                    <span>{vehicle.id}</span>
-
-                    <span>{vehicle.dist?.toFixed(1)} km</span>
-
-                    <span>{vehicle.speed} km/h</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="panel-section">
-            <h3>Plan Your Trip</h3>
-
-            <div className="destination-input">
-              <input
-                type="text"
-                placeholder="📍 Enter destination"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-              />
-
-              <button onClick={handleDestinationSubmit} disabled={loadingEta}>
-                {loadingEta ? "⏳" : "Get ETA"}
-              </button>
-            </div>
-
-            {eta && (
-              <div className="eta-display">
-                ⏱️ ETA: {eta.eta_minutes} min
-                {eta.error && (
-                  <span style={{ color: "red" }}> ({eta.error})</span>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="panel-section">
-            <button
-              className={`waiting-btn ${isWaiting ? "active" : ""}`}
-              onClick={handleWaiting}
-            >
-              {isWaiting ? "🟢 Waiting..." : "🟡 I'm Waiting for a Jeep"}
-            </button>
-          </div>
-        </div>
+        <BottomSheet nearest={nearest} eta={eta} onWait={handleWaiting} />
       </div>
     </div>
   );
