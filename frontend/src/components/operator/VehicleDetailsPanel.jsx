@@ -1,15 +1,6 @@
 // src/components/operator/VehicleDetailsPanel.jsx
 
-import {
-  Bus,
-  User,
-  Gauge,
-  Users,
-  Route,
-  Clock,
-  MapPinned,
-  Circle,
-} from "lucide-react";
+import { Bus, User, Gauge, Users, Route, Clock, MapPinned } from "lucide-react";
 
 export default function VehicleDetailsPanel({ vehicle }) {
   if (!vehicle) {
@@ -18,16 +9,17 @@ export default function VehicleDetailsPanel({ vehicle }) {
         style={{
           background: "#fff",
           borderRadius: 20,
-          padding: 24,
-          boxShadow: "0 8px 24px rgba(15,23,42,.08)",
+          padding: 28,
+          boxShadow: "0 10px 30px rgba(15,23,42,.08)",
+          border: "1px solid #E2E8F0",
         }}
       >
         <h2
           style={{
-            margin: 0,
+            marginTop: 0,
             marginBottom: 20,
             fontSize: 20,
-            fontWeight: 700,
+            color: "#0F172A",
           }}
         >
           Vehicle Details
@@ -35,22 +27,24 @@ export default function VehicleDetailsPanel({ vehicle }) {
 
         <div
           style={{
-            padding: "50px 20px",
-            textAlign: "center",
-            color: "#64748B",
+            height: 240,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "#94A3B8",
           }}
         >
-          <Bus
-            size={54}
+          <Bus size={54} />
+
+          <p
             style={{
-              marginBottom: 16,
-              opacity: 0.3,
+              marginTop: 16,
+              fontSize: 15,
             }}
-          />
-
-          <h3>Select a Vehicle</h3>
-
-          <p>Click any jeepney on the map to inspect its live information.</p>
+          >
+            Select a vehicle on the map
+          </p>
         </div>
       </div>
     );
@@ -62,27 +56,27 @@ export default function VehicleDetailsPanel({ vehicle }) {
         background: "#fff",
         borderRadius: 20,
         padding: 24,
-        boxShadow: "0 8px 24px rgba(15,23,42,.08)",
+        boxShadow: "0 10px 30px rgba(15,23,42,.08)",
+        border: "1px solid #E2E8F0",
       }}
     >
-      {/* HEADER */}
-
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 25,
+          marginBottom: 20,
         }}
       >
         <div>
           <div
             style={{
-              fontSize: 22,
+              fontSize: 26,
               fontWeight: 700,
+              color: "#0F172A",
             }}
           >
-            {vehicle.plate || vehicle.id}
+            {vehicle.id}
           </div>
 
           <div
@@ -91,72 +85,58 @@ export default function VehicleDetailsPanel({ vehicle }) {
               marginTop: 4,
             }}
           >
-            {vehicle.route}
+            Fleet Vehicle
           </div>
         </div>
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            color: "#22C55E",
+            background: "#DCFCE7",
+            color: "#15803D",
+            padding: "8px 16px",
+            borderRadius: 999,
             fontWeight: 600,
           }}
         >
-          <Circle size={10} fill="#22C55E" strokeWidth={0} />
-          Online
+          ● Online
         </div>
       </div>
 
-      {/* DETAILS */}
+      <Info
+        icon={<User size={18} />}
+        label="Driver"
+        value={vehicle.driver || "Juan Dela Cruz"}
+      />
 
-      <div
-        style={{
-          display: "grid",
-          gap: 16,
-        }}
-      >
-        <Row
-          icon={<Bus size={18} />}
-          label="Status"
-          value={vehicle.status || "On Route"}
-        />
+      <Info
+        icon={<Route size={18} />}
+        label="Route"
+        value={vehicle.route || "Cubao - Makati"}
+      />
 
-        <Row
-          icon={<User size={18} />}
-          label="Driver"
-          value={vehicle.driver || "Unknown"}
-        />
+      <Info
+        icon={<Gauge size={18} />}
+        label="Speed"
+        value={`${vehicle.speed || 0} km/h`}
+      />
 
-        <Row
-          icon={<Gauge size={18} />}
-          label="Speed"
-          value={`${vehicle.speed || 0} km/h`}
-        />
+      <Info
+        icon={<Users size={18} />}
+        label="Passengers"
+        value={vehicle.passengers ?? 18}
+      />
 
-        <Row
-          icon={<Users size={18} />}
-          label="Passengers"
-          value={vehicle.passengers || "0 / 32"}
-        />
+      <Info
+        icon={<Clock size={18} />}
+        label="ETA"
+        value={vehicle.eta || "5 min"}
+      />
 
-        <Row icon={<Route size={18} />} label="Route" value={vehicle.route} />
-
-        <Row
-          icon={<MapPinned size={18} />}
-          label="Destination"
-          value={vehicle.destination}
-        />
-
-        <Row
-          icon={<Clock size={18} />}
-          label="ETA"
-          value={`${vehicle.eta || 0} mins`}
-        />
-      </div>
-
-      {/* QUICK METRICS */}
+      <Info
+        icon={<MapPinned size={18} />}
+        label="Destination"
+        value={vehicle.destination || "Terminal"}
+      />
 
       <div
         style={{
@@ -166,25 +146,29 @@ export default function VehicleDetailsPanel({ vehicle }) {
           marginTop: 24,
         }}
       >
-        <MiniCard value={vehicle.speed || 0} label="km/h" />
+        <MiniCard value={vehicle.speed || 0} label="km/h" color="#DBEAFE" />
 
-        <MiniCard value={vehicle.passengers || "0"} label="Occupancy" />
+        <MiniCard
+          value={vehicle.passengers ?? 18}
+          label="Riders"
+          color="#DCFCE7"
+        />
 
-        <MiniCard value={vehicle.eta || 0} label="ETA" />
+        <MiniCard value={vehicle.delay ?? 0} label="Delay" color="#FEF3C7" />
       </div>
     </div>
   );
 }
 
-function Row({ icon, label, value }) {
+function Info({ icon, label, value }) {
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingBottom: 12,
-        borderBottom: "1px solid #E2E8F0",
+        padding: "14px 0",
+        borderBottom: "1px solid #F1F5F9",
       }}
     >
       <div
@@ -192,45 +176,40 @@ function Row({ icon, label, value }) {
           display: "flex",
           gap: 10,
           alignItems: "center",
-          color: "#334155",
+          color: "#475569",
+          fontWeight: 600,
         }}
       >
         {icon}
 
-        <span
-          style={{
-            fontWeight: 600,
-          }}
-        >
-          {label}
-        </span>
+        {label}
       </div>
 
-      <span
+      <div
         style={{
-          color: "#0F172A",
           fontWeight: 600,
+          color: "#0F172A",
         }}
       >
         {value}
-      </span>
+      </div>
     </div>
   );
 }
 
-function MiniCard({ value, label }) {
+function MiniCard({ value, label, color }) {
   return (
     <div
       style={{
-        background: "#F8FAFC",
-        borderRadius: 16,
+        background: color,
+        borderRadius: 14,
         padding: 18,
         textAlign: "center",
       }}
     >
       <div
         style={{
-          fontSize: 24,
+          fontSize: 28,
           fontWeight: 700,
           color: "#0F172A",
         }}
@@ -240,9 +219,9 @@ function MiniCard({ value, label }) {
 
       <div
         style={{
-          marginTop: 4,
+          marginTop: 6,
+          color: "#475569",
           fontSize: 13,
-          color: "#64748B",
         }}
       >
         {label}
