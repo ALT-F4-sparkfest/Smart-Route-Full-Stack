@@ -12,18 +12,22 @@ export default function FleetMap({
     <section
       style={{
         background: "#fff",
-        borderRadius: 20,
-        padding: 20,
-        boxShadow: "0 10px 30px rgba(15,23,42,.08)",
-        marginBottom: 24,
+        borderRadius: 24,
+        overflow: "hidden",
+        boxShadow: "0 14px 40px rgba(15,23,42,.08)",
+        border: "1px solid #E2E8F0",
+        marginBottom: 28,
       }}
     >
+      {/* Header */}
+
       <div
         style={{
+          padding: "18px 24px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 16,
+          borderBottom: "1px solid #E5E7EB",
         }}
       >
         <div>
@@ -32,41 +36,71 @@ export default function FleetMap({
               margin: 0,
               fontSize: 20,
               fontWeight: 700,
+              color: "#0F172A",
             }}
           >
-            Live Fleet Map
+            Fleet Operations Map
           </h2>
 
-          <p
+          <div
             style={{
-              margin: "4px 0 0",
-              color: "#64748b",
-              fontSize: 14,
+              fontSize: 13,
+              color: "#64748B",
+              marginTop: 4,
             }}
           >
-            {vehicles.length} active vehicles tracked
-          </p>
+            Live GPS tracking of all active jeepneys
+          </div>
         </div>
 
         <div
           style={{
-            background: "#dcfce7",
-            color: "#15803d",
-            padding: "6px 14px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#ECFDF5",
+            color: "#059669",
+            padding: "8px 14px",
             borderRadius: 999,
             fontWeight: 600,
             fontSize: 13,
           }}
         >
-          ● Live
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: "#22C55E",
+            }}
+          />
+          LIVE
         </div>
       </div>
 
+      {/* Quick Stats */}
+
       <div
         style={{
-          height: 550,
-          overflow: "hidden",
-          borderRadius: 18,
+          display: "flex",
+          gap: 18,
+          padding: "14px 24px",
+          borderBottom: "1px solid #F1F5F9",
+          background: "#F8FAFC",
+          fontSize: 14,
+          color: "#475569",
+        }}
+      >
+        <strong>{vehicles.length}</strong> Active Vehicles
+        <span>|</span>
+        <strong>{waitingCommuters.length}</strong> Waiting Commuters
+      </div>
+
+      {/* Map */}
+
+      <div
+        style={{
+          height: 520,
         }}
       >
         <LiveMap
