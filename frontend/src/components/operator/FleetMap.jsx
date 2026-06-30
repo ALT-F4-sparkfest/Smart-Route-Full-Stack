@@ -24,8 +24,8 @@ export default function FleetMap({
         showPopup={false}
         onVehicleSelect={onVehicleSelect}
       >
-        {waitingCommuters.map((person) => (
-          <WaitingMarker key={person.id} person={person} />
+        {waitingCommuters.map((person, index) => (
+          <WaitingMarker key={person.id || index} person={person} />
         ))}
       </LiveMap>
     </div>
