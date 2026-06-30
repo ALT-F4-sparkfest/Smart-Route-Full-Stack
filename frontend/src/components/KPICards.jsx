@@ -1,101 +1,126 @@
+// src/components/KPICards.jsx
+
 import fleetStats from "../data/fleetStats.json";
 
+const cards = [
+  {
+    key: "vehicles_active",
+    title: "Active Fleet",
+    icon: "🚌",
+    color: "#2563EB",
+  },
+  {
+    key: "total_trips",
+    title: "Trips Today",
+    icon: "🛣️",
+    color: "#10B981",
+  },
+  {
+    key: "avg_speed_kmh",
+    title: "Avg Speed",
+    icon: "⚡",
+    color: "#F59E0B",
+    suffix: " km/h",
+  },
+  {
+    key: "on_time_percentage",
+    title: "On-Time",
+    icon: "⏱️",
+    color: "#8B5CF6",
+    suffix: "%",
+  },
+];
+
 export default function KPICards() {
-  const stats = fleetStats;
-
-  const cards = [
-    {
-      label: "Trips Today",
-      value: stats.total_trips.toLocaleString(),
-      icon: "🚌",
-    },
-    {
-      label: "Distance",
-      value: `${stats.total_km.toLocaleString()} km`,
-      icon: "🛣️",
-    },
-    {
-      label: "Average Speed",
-      value: `${stats.avg_speed_kmh} km/h`,
-      icon: "⚡",
-    },
-    {
-      label: "On Time",
-      value: `${stats.on_time_percentage}%`,
-      icon: "⏱️",
-    },
-    {
-      label: "Fleet Utilization",
-      value: `${stats.avg_utilization_percent}%`,
-      icon: "📈",
-    },
-    {
-      label: "Revenue",
-      value: `₱${stats.avg_daily_revenue_php.toLocaleString()}`,
-      icon: "💰",
-    },
-    {
-      label: "Peak Hour",
-      value: `${stats.peak_hour}:00`,
-      icon: "🕐",
-    },
-    {
-      label: "Active Fleet",
-      value: stats.vehicles_active,
-      icon: "🚍",
-    },
-  ];
-
   return (
-    <div
+    <section
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))",
-        gap: 18,
-        marginBottom: 24,
+        gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+        gap: 20,
+        marginBottom: 28,
       }}
     >
       {cards.map((card) => (
-        <div
-          key={card.label}
+        <Card
+          key={card.key}
+          title={card.title}
+          value={fleetStats[card.key]}
+          icon={card.icon}
+          color={card.color}
+          suffix={card.suffix}
+        />
+      ))}
+    </section>
+  );
+}
+
+function Card({ title, value, icon, color, suffix = "" }) {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 20,
+        padding: 22,
+        boxShadow: "0 10px 35px rgba(15,23,42,.08)",
+        border: "1px solid #E2E8F0",
+        transition: ".2s",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span
           style={{
-            background: "#fff",
-            borderRadius: 18,
-            padding: 22,
-            boxShadow: "0 8px 24px rgba(15,23,42,.08)",
-            transition: ".25s",
+            fontSize: 14,
+            color: "#64748B",
+            fontWeight: 600,
           }}
         >
-          <div
-            style={{
-              fontSize: 28,
-              marginBottom: 12,
-            }}
-          >
-            {card.icon}
-          </div>
+          {title}
+        </span>
 
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
-            {card.value}
-          </div>
-
-          <div
-            style={{
-              marginTop: 6,
-              color: "#64748b",
-              fontSize: 14,
-            }}
-          >
-            {card.label}
-          </div>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            background: `${color}15`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 22,
+          }}
+        >
+          {icon}
         </div>
-      ))}
+      </div>
+
+      <div
+        style={{
+          fontSize: 34,
+          fontWeight: 700,
+          color: "#0F172A",
+          marginTop: 18,
+        }}
+      >
+        {typeof value === "number" ? value.toLocaleString() : value}
+        {suffix}
+      </div>
+
+      <div
+        style={{
+          marginTop: 8,
+          color: "#94A3B8",
+          fontSize: 13,
+        }}
+      >
+        Live operational metric
+      </div>
     </div>
   );
 }
