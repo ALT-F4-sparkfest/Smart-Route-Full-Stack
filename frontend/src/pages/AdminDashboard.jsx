@@ -1,52 +1,54 @@
+// src/pages/AdminDashboard.jsx
 import { useState, useEffect, useRef } from "react";
+import io from "socket.io-client";
 import LiveMap from "../components/LiveMap";
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
 
 export default function AdminDashboard() {
   const [vehicles, setVehicles] = useState({});
   const [waiters, setWaiters] = useState([]);
   const [connected, setConnected] = useState(false);
-  const ws = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    ws.current = new WebSocket(`${WS_URL}/ws`);
-    ws.current.onopen = () => {
+    socketRef.current = io(BACKEND_URL, {
+      transports: ["websocket"],
+    });
+
+    socketRef.current.on("connect", () => {
       setConnected(true);
       fetch(`${BACKEND_URL}/commuter/waiting/all`)
         .then((r) => r.json())
         .then((d) => setWaiters(d.waiters || []));
+    });
+
+    socketRef.current.on("disconnect", () => setConnected(false));
+
+    socketRef.current.on("vehicle-update", (vehicleData) => {
+      setVehicles((prev) => ({
+        ...prev,
+        [vehicleData.id]: vehicleData,
+      }));
+    });
+
+    socketRef.current.on("waiting-update", (data) => {
+      setWaiters(data.waiters || []);
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
     };
-    ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "vehicle_update") {
-        setVehicles((prev) => ({
-          ...prev,
-          [msg.data.vehicle_id]: msg.data,
-        }));
-      }
-      if (msg.type === "waiting_update") {
-        setWaiters(msg.waiters || []);
-      }
-    };
-    ws.current.onclose = () => setConnected(false);
-    return () => ws.current.close();
   }, []);
 
   const vehicleList = Object.values(vehicles);
 
   return (
     <div className="page-content">
-      {/* 🆕 AI Insights: KPI Cards */}
       <KPICards />
-
-      {/* 🆕 AI Insights: Travel Time Chart */}
       <TravelTimeChart />
-
-      {/* 🔽 Existing: Map + Sidebar Layout */}
       <div className="dashboard-layout">
         <div className="dashboard-map">
           <LiveMap vehicles={vehicles} waiters={waiters} />
@@ -83,11 +85,13 @@ export default function AdminDashboard() {
               <div className="empty-state">No vehicles active</div>
             ) : (
               vehicleList.map((v) => (
-                <div key={v.vehicle_id} className="vehicle-card">
+                <div key={v.id || v.vehicle_id} className="vehicle-card">
                   <div className="vehicle-header">
-                    <span className="vehicle-id">{v.vehicle_id}</span>
-                    <span className={`vehicle-status ${v.status}`}>
-                      {v.status}
+                    <span className="vehicle-id">{v.id || v.vehicle_id}</span>
+                    <span
+                      className={`vehicle-status ${v.status || "on_route"}`}
+                    >
+                      {v.status || "On Route"}
                     </span>
                   </div>
                   <div className="vehicle-route">{v.route}</div>
@@ -120,7 +124,7 @@ export default function AdminDashboard() {
                   <span className="waiter-icon">🧍</span>
                   <div>
                     <div className="waiter-coords">
-                      {w.lat.toFixed(4)}, {w.lng.toFixed(4)}
+                      {w.lat?.toFixed(4)}, {w.lng?.toFixed(4)}
                     </div>
                     <div className="waiter-time">{w.time}</div>
                   </div>
