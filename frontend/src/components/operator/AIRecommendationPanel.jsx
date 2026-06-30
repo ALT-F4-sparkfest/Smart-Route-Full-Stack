@@ -1,12 +1,11 @@
-// src/components/operator/AIRecommendationPanel.jsx
-
 import {
+  Brain,
   Sparkles,
-  ArrowRight,
-  AlertTriangle,
   Bus,
   Users,
-  Brain,
+  MapPinned,
+  ArrowRight,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function AIRecommendationPanel({
@@ -15,43 +14,60 @@ export default function AIRecommendationPanel({
 }) {
   const waiting = waitingCommuters.length;
 
-  let recommendation = {
-    level: "Normal",
-    color: "#22C55E",
-    confidence: "98%",
-    message:
-      "Fleet distribution is healthy. No dispatch action is currently required.",
-  };
+  const hotspot =
+    waiting > 0
+      ? waitingCommuters.reduce((acc, person) => {
+          const stop =
+            person.stop ||
+            person.stop_name ||
+            person.location ||
+            "Cubao Terminal";
 
-  if (waiting > 5) {
-    recommendation = {
-      level: "Medium",
-      color: "#F59E0B",
-      confidence: "93%",
-      message:
-        "Passenger demand is increasing. Prepare one reserve vehicle near the busiest hotspot.",
-    };
+          acc[stop] = (acc[stop] || 0) + 1;
+          return acc;
+        }, {})
+      : {};
+
+  const busiestStop = Object.entries(hotspot).sort(
+    (a, b) => b[1] - a[1],
+  )[0] || ["Cubao Terminal", waiting];
+
+  const suggestedVehicle =
+    vehicles.length > 0
+      ? vehicles.reduce((best, current) =>
+          (current.passengers || 0) < (best.passengers || 0) ? current : best,
+        )
+      : null;
+
+  let level = "Normal";
+  let color = "#22C55E";
+  let confidence = 98;
+  let recommendation =
+    "Fleet distribution is healthy. Continue monitoring demand.";
+
+  if (waiting >= 5) {
+    level = "Medium";
+    color = "#F59E0B";
+    confidence = 94;
+    recommendation = "Demand is increasing. Prepare one reserve vehicle.";
   }
 
-  if (waiting > 10) {
-    recommendation = {
-      level: "High",
-      color: "#EF4444",
-      confidence: "97%",
-      message:
-        "Demand spike detected. Dispatch an additional jeepney immediately to reduce passenger waiting time.",
-    };
+  if (waiting >= 10) {
+    level = "High";
+    color = "#EF4444";
+    confidence = 97;
+    recommendation =
+      "Dispatch another jeepney immediately to reduce passenger waiting time.";
   }
 
   return (
     <div
       style={{
         background: "#fff",
-        borderRadius: 20,
-        padding: 24,
-        marginBottom: 24,
+        borderRadius: 24,
+        padding: 26,
         border: "1px solid #E2E8F0",
-        boxShadow: "0 10px 30px rgba(15,23,42,.08)",
+        boxShadow: "0 15px 40px rgba(15,23,42,.08)",
       }}
     >
       <div
@@ -64,17 +80,30 @@ export default function AIRecommendationPanel({
         <div
           style={{
             display: "flex",
-            gap: 10,
+            gap: 14,
             alignItems: "center",
           }}
         >
-          <Brain color="#2563EB" />
+          <div
+            style={{
+              width: 54,
+              height: 54,
+              borderRadius: 16,
+              background: "#DBEAFE",
+              color: "#2563EB",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Brain size={28} />
+          </div>
 
           <div>
             <h2
               style={{
                 margin: 0,
-                fontSize: 20,
+                color: "#0F172A",
               }}
             >
               AI Dispatch Assistant
@@ -86,30 +115,30 @@ export default function AIRecommendationPanel({
                 fontSize: 13,
               }}
             >
-              Predictive fleet recommendations
+              Real-time operational insights
             </div>
           </div>
         </div>
 
         <div
           style={{
-            background: recommendation.color,
-            color: "white",
-            padding: "8px 16px",
+            background: color,
+            color: "#fff",
+            padding: "8px 18px",
             borderRadius: 999,
             fontWeight: 700,
           }}
         >
-          {recommendation.level}
+          {level}
         </div>
       </div>
 
       <div
         style={{
-          marginTop: 24,
-          padding: 20,
-          borderRadius: 16,
+          marginTop: 28,
           background: "#F8FAFC",
+          borderRadius: 18,
+          padding: 20,
         }}
       >
         <div
@@ -117,106 +146,115 @@ export default function AIRecommendationPanel({
             display: "flex",
             gap: 10,
             alignItems: "center",
-            marginBottom: 14,
-            color: recommendation.color,
+            color,
             fontWeight: 700,
+            marginBottom: 18,
           }}
         >
           <AlertTriangle size={18} />
-          AI Recommendation
+          Recommendation
         </div>
 
         <div
           style={{
-            lineHeight: 1.6,
+            fontSize: 17,
+            lineHeight: 1.7,
             color: "#334155",
           }}
         >
-          {recommendation.message}
+          {recommendation}
+        </div>
+
+        <div
+          style={{
+            marginTop: 24,
+            display: "grid",
+            gridTemplateColumns: "repeat(2,1fr)",
+            gap: 16,
+          }}
+        >
+          <Info
+            icon={<MapPinned size={18} />}
+            title="Highest Demand"
+            value={busiestStop[0]}
+          />
+
+          <Info
+            icon={<Users size={18} />}
+            title="Waiting"
+            value={`${busiestStop[1]} commuters`}
+          />
+
+          <Info
+            icon={<Bus size={18} />}
+            title="Dispatch"
+            value={suggestedVehicle?.id || "Vehicle #05"}
+          />
+
+          <Info
+            icon={<Sparkles size={18} />}
+            title="Confidence"
+            value={`${confidence}%`}
+          />
         </div>
 
         <button
           style={{
-            marginTop: 20,
+            width: "100%",
+            marginTop: 24,
+            border: "none",
+            borderRadius: 16,
             background: "#2563EB",
             color: "white",
-            border: "none",
-            padding: "12px 20px",
-            borderRadius: 12,
+            padding: "15px",
+            fontWeight: 700,
             display: "flex",
+            justifyContent: "center",
             alignItems: "center",
-            gap: 8,
+            gap: 10,
             cursor: "pointer",
-            fontWeight: 600,
           }}
         >
-          Review Dispatch Plan
-          <ArrowRight size={16} />
+          Execute Dispatch Recommendation
+          <ArrowRight size={18} />
         </button>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 14,
-          marginTop: 24,
-        }}
-      >
-        <Metric
-          icon={<Bus size={20} />}
-          label="Vehicles"
-          value={vehicles.length}
-        />
-
-        <Metric icon={<Users size={20} />} label="Waiting" value={waiting} />
-
-        <Metric
-          icon={<Sparkles size={20} />}
-          label="Confidence"
-          value={recommendation.confidence}
-        />
       </div>
     </div>
   );
 }
 
-function Metric({ icon, value, label }) {
+function Info({ icon, title, value }) {
   return (
     <div
       style={{
-        background: "#F8FAFC",
+        background: "#fff",
         borderRadius: 16,
-        padding: 18,
-        textAlign: "center",
+        padding: 16,
+        border: "1px solid #E2E8F0",
       }}
     >
       <div
         style={{
-          marginBottom: 10,
-          color: "#2563EB",
-        }}
-      >
-        {icon}
-      </div>
-
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 700,
-          color: "#0F172A",
-        }}
-      >
-        {value}
-      </div>
-
-      <div
-        style={{
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
           color: "#64748B",
+          marginBottom: 10,
           fontSize: 13,
         }}
       >
-        {label}
+        {icon}
+        {title}
+      </div>
+
+      <div
+        style={{
+          fontWeight: 700,
+          color: "#0F172A",
+          fontSize: 18,
+        }}
+      >
+        {value}
       </div>
     </div>
   );

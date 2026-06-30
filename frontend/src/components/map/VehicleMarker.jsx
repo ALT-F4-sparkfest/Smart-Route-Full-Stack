@@ -17,67 +17,75 @@ export default function VehicleMarker({ vehicle, selected = false, onClick }) {
         style={{
           position: "relative",
           cursor: "pointer",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        {/* Pulse */}
+        {/* Live Pulse */}
+
         <div
           style={{
             position: "absolute",
-            inset: -10,
+            width: selected ? 72 : 60,
+            height: selected ? 72 : 60,
             borderRadius: "50%",
             background: "rgba(37,99,235,.18)",
-            animation: "busPulse 2s infinite",
+            animation: "pulse 2s infinite",
           }}
         />
 
-        {/* Vehicle */}
+        {/* Marker */}
+
         <div
           style={{
-            width: selected ? 56 : 46,
-            height: selected ? 56 : 46,
+            width: selected ? 52 : 44,
+            height: selected ? 52 : 44,
             borderRadius: "50%",
-            background: selected
-              ? "linear-gradient(135deg,#2563EB,#1D4ED8)"
-              : "linear-gradient(135deg,#3B82F6,#60A5FA)",
-            color: "#fff",
+            background: "linear-gradient(135deg,#2563EB,#60A5FA)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            color: "white",
             border: "3px solid white",
-            boxShadow: "0 10px 24px rgba(37,99,235,.35)",
+            boxShadow: "0 12px 28px rgba(37,99,235,.35)",
             transition: ".25s",
-            position: "relative",
             zIndex: 2,
           }}
         >
           <Bus size={22} />
         </div>
 
-        {/* Route Label */}
+        {/* Vehicle Label */}
+
         <div
           style={{
-            marginTop: 6,
-            background: "rgba(15,23,42,.88)",
-            color: "#fff",
-            fontSize: 11,
-            fontWeight: 700,
+            marginTop: 8,
             padding: "4px 10px",
             borderRadius: 999,
+            background: "white",
+            boxShadow: "0 8px 18px rgba(0,0,0,.12)",
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#2563EB",
             whiteSpace: "nowrap",
-            textAlign: "center",
-            boxShadow: "0 6px 14px rgba(0,0,0,.18)",
           }}
         >
-          {vehicle.route || vehicle.id}
+          {vehicle.id}
         </div>
 
         <style>
           {`
-            @keyframes busPulse{
-              0%{transform:scale(.9);opacity:.8;}
-              70%{transform:scale(1.5);opacity:0;}
-              100%{transform:scale(1.5);opacity:0;}
+          @keyframes pulse{
+            0%{
+              transform:scale(.8);
+              opacity:.8;
             }
+            100%{
+              transform:scale(1.7);
+              opacity:0;
+            }
+          }
           `}
         </style>
       </div>

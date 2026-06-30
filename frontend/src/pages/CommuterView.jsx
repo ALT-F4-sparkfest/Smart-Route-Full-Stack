@@ -1,6 +1,7 @@
 // src/pages/CommuterView.jsx
 
 import { useState, useEffect } from "react";
+import { Bus, Clock3, Navigation } from "lucide-react";
 
 import LiveMap from "../components/map/LiveMap";
 import BottomSheet from "../components/commuter/BottomSheet";
@@ -99,7 +100,7 @@ export default function CommuterView({ onBack }) {
         <span className="brand">🚌 BUSINA</span>
 
         <div style={{ marginLeft: "auto" }}>
-          <ConnectionStatusPill status="connected" />
+          <ConnectionStatusPill status="live" />
         </div>
       </div>
 
@@ -123,6 +124,149 @@ export default function CommuterView({ onBack }) {
           onSearch={handleDestinationSubmit}
           loading={loadingEta}
         />
+
+        {nearest[0] && (
+          <div
+            style={{
+              position: "absolute",
+              top: 165,
+              left: 24,
+              zIndex: 20,
+              background: "rgba(255,255,255,.92)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              borderRadius: 22,
+              padding: 18,
+              minWidth: 260,
+              boxShadow: "0 18px 40px rgba(0,0,0,.16)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 14,
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 16,
+                  background: "#DBEAFE",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Bus color="#2563EB" />
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 18,
+                  }}
+                >
+                  {nearest[0].id}
+                </div>
+
+                <div
+                  style={{
+                    color: "#64748B",
+                    fontSize: 13,
+                  }}
+                >
+                  {nearest[0].route}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {eta && (
+          <div
+            style={{
+              position: "absolute",
+              top: 165,
+              right: 24,
+              zIndex: 20,
+              background: "#2563EB",
+              color: "white",
+              borderRadius: 22,
+              padding: 22,
+              width: 180,
+              boxShadow: "0 20px 45px rgba(37,99,235,.30)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <Clock3 size={18} />
+              ETA
+            </div>
+
+            <div
+              style={{
+                fontSize: 42,
+                fontWeight: 800,
+                marginTop: 8,
+              }}
+            >
+              {eta.eta_minutes}
+            </div>
+
+            <div
+              style={{
+                opacity: 0.9,
+              }}
+            >
+              minutes
+            </div>
+          </div>
+        )}
+
+        {nearest[0] && (
+          <div
+            style={{
+              position: "absolute",
+              right: 24,
+              bottom: 240,
+              zIndex: 20,
+              background: "white",
+              borderRadius: 18,
+              padding: 18,
+              boxShadow: "0 18px 40px rgba(0,0,0,.15)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
+              <Navigation size={18} />
+
+              <strong>{nearest[0].destination || "Destination"}</strong>
+            </div>
+
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                color: "#64748B",
+              }}
+            >
+              Current Route
+            </div>
+          </div>
+        )}
 
         <BottomSheet
           nearest={nearest}

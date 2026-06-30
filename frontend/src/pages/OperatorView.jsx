@@ -147,10 +147,7 @@ export default function OperatorView({ onBack }) {
           </div>
         </div>
 
-        <ConnectionStatusPill
-          status={DEMO_MODE ? "connected" : status}
-          inline
-        />
+        <ConnectionStatusPill status={DEMO_MODE ? "live" : status} inline />
       </div>
 
       <KPICards />
@@ -197,31 +194,242 @@ export default function OperatorView({ onBack }) {
             waitingCommuters={waitingList}
           />
 
-          {alertList.length > 0 && (
-            <div className="dash-section">
-              <h2 className="panel-title">Alerts</h2>
+          <OperationsPanel
+            alerts={alertList}
+            hotspots={topHotspots}
+            vehicles={vehicleList}
+            waiting={waitingList}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-              {alertList.map((alert, index) => (
-                <div key={alert.id || index} className="alert-card">
-                  {alert.message}
-                </div>
-              ))}
-            </div>
-          )}
+function OperationsPanel({
+  alerts = [],
+  hotspots = [],
+  vehicles = [],
+  waiting = [],
+}) {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 22,
+        padding: 24,
+        border: "1px solid #E2E8F0",
+        boxShadow: "0 15px 35px rgba(15,23,42,.08)",
+      }}
+    >
+      <h2
+        style={{
+          marginTop: 0,
+          marginBottom: 20,
+        }}
+      >
+        🚦 Live Operations Center
+      </h2>
 
-          <div className="dash-section">
-            <h2 className="panel-title">Demand Hotspots</h2>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3,1fr)",
+          gap: 14,
+          marginBottom: 24,
+        }}
+      >
+        <MiniStat title="Fleet" value={vehicles.length} color="#2563EB" />
+        <MiniStat title="Waiting" value={waiting.length} color="#EF4444" />
+        <MiniStat title="Health" value="98%" color="#22C55E" />
+      </div>
 
-            {topHotspots.map((spot, index) => (
-              <div key={index} className="hotspot-card">
-                <div className="hotspot-name">{spot.stop_name}</div>
+      <h3>🚨 Live Alerts</h3>
 
-                <div className="hotspot-meta">
-                  {spot.route_id} • {spot.avg_wait_minutes} mins
-                </div>
-              </div>
-            ))}
+      {alerts.length ? (
+        alerts
+          .slice(0, 5)
+          .map((alert, index) => (
+            <AlertRow
+              key={index}
+              color={
+                index === 0 ? "#EF4444" : index === 1 ? "#F59E0B" : "#2563EB"
+              }
+              text={alert.message}
+            />
+          ))
+      ) : (
+        <AlertRow color="#22C55E" text="No operational alerts." />
+      )}
+
+      <hr
+        style={{
+          margin: "24px 0",
+          border: 0,
+          borderTop: "1px solid #E2E8F0",
+        }}
+      />
+
+      <h3>📍 Demand Ranking</h3>
+
+      {hotspots.map((spot, index) => (
+        <HotspotRow key={index} rank={index + 1} spot={spot} />
+      ))}
+
+      <div
+        style={{
+          marginTop: 24,
+          background: "#EFF6FF",
+          padding: 18,
+          borderRadius: 14,
+        }}
+      >
+        <strong style={{ color: "#2563EB" }}>🤖 AI Summary</strong>
+
+        <p
+          style={{
+            marginTop: 10,
+            color: "#475569",
+            lineHeight: 1.6,
+          }}
+        >
+          Fleet is operating normally. Current demand can be served using the
+          existing active fleet. Continue monitoring passenger growth around the
+          highest-ranked hotspot.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ title, value, color }) {
+  return (
+    <div
+      style={{
+        background: `${color}15`,
+        borderRadius: 14,
+        padding: 18,
+        textAlign: "center",
+      }}
+    >
+      <div
+        style={{
+          color,
+          fontSize: 28,
+          fontWeight: 700,
+        }}
+      >
+        {value}
+      </div>
+
+      <div
+        style={{
+          marginTop: 6,
+          color: "#64748B",
+        }}
+      >
+        {title}
+      </div>
+    </div>
+  );
+}
+
+function AlertRow({ color, text }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        marginBottom: 14,
+        alignItems: "flex-start",
+      }}
+    >
+      <div
+        style={{
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          background: color,
+          marginTop: 5,
+        }}
+      />
+
+      <div
+        style={{
+          color: "#334155",
+          lineHeight: 1.5,
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}
+
+function HotspotRow({ rank, spot }) {
+  const colors = ["#EF4444", "#F97316", "#F59E0B", "#22C55E", "#2563EB"];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "12px 0",
+        borderBottom: "1px solid #F1F5F9",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: "50%",
+            background: colors[rank - 1],
+            color: "#fff",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontWeight: 700,
+          }}
+        >
+          {rank}
+        </div>
+
+        <div>
+          <strong>{spot.stop_name}</strong>
+
+          <div
+            style={{
+              color: "#64748B",
+              fontSize: 13,
+            }}
+          >
+            {spot.route_id}
           </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          textAlign: "right",
+        }}
+      >
+        <strong>{spot.avg_wait_minutes} min</strong>
+
+        <div
+          style={{
+            color: "#64748B",
+            fontSize: 13,
+          }}
+        >
+          Avg Wait
         </div>
       </div>
     </div>

@@ -1,17 +1,18 @@
-// src/components/layout/Hero.jsx
-
-import { Bus, Building2, Sparkles, MapPinned } from "lucide-react";
+import { Bus, Building2, MapPinned, ArrowRight, Sparkles } from "lucide-react";
 import Button from "../ui/Button";
 
 export default function Hero({ setActiveView }) {
   return (
     <section
       style={{
+        minHeight: "90vh",
         display: "grid",
-        gridTemplateColumns: "1.1fr .9fr",
-        gap: 48,
+        gridTemplateColumns: "1.1fr 1fr",
         alignItems: "center",
-        minHeight: "75vh",
+        gap: 70,
+        padding: "70px 8%",
+        background:
+          "linear-gradient(135deg,#EEF6FF 0%,#FFFFFF 45%,#DCEBFF 100%)",
       }}
     >
       {/* LEFT */}
@@ -27,7 +28,7 @@ export default function Hero({ setActiveView }) {
             background: "#DBEAFE",
             color: "#2563EB",
             fontWeight: 700,
-            marginBottom: 28,
+            marginBottom: 26,
           }}
         >
           <Sparkles size={18} />
@@ -36,11 +37,12 @@ export default function Hero({ setActiveView }) {
 
         <h1
           style={{
-            fontSize: 68,
-            lineHeight: 1.05,
+            fontSize: 84,
+            lineHeight: 1,
             margin: 0,
+            fontWeight: 900,
             color: "#0F172A",
-            fontWeight: 800,
+            letterSpacing: "-2px",
           }}
         >
           BUSINA
@@ -48,30 +50,28 @@ export default function Hero({ setActiveView }) {
 
         <h2
           style={{
-            fontSize: 42,
-            marginTop: 18,
-            marginBottom: 24,
+            marginTop: 14,
+            marginBottom: 28,
             color: "#2563EB",
-            lineHeight: 1.15,
+            fontSize: 34,
+            fontWeight: 700,
           }}
         >
-          Real-Time Public
-          <br />
-          Transport Intelligence
+          Smarter commutes. Better journeys.
         </h2>
 
         <p
           style={{
-            maxWidth: 620,
-            fontSize: 19,
+            fontSize: 20,
             color: "#475569",
             lineHeight: 1.8,
-            marginBottom: 36,
+            maxWidth: 640,
+            marginBottom: 40,
           }}
         >
-          Track vehicles in real time, discover passenger demand hotspots,
-          estimate arrival times, and optimize fleet operations—all from one
-          intelligent platform.
+          A smart mobility platform that helps commuters find rides faster while
+          giving operators live fleet visibility, intelligent dispatch
+          recommendations, and demand-driven decision support.
         </p>
 
         <div
@@ -83,12 +83,12 @@ export default function Hero({ setActiveView }) {
         >
           <Button onClick={() => setActiveView("commuter")}>
             <Bus size={18} />
-            Commuter Mode
+            I'm a Commuter
           </Button>
 
           <Button variant="secondary" onClick={() => setActiveView("operator")}>
             <Building2 size={18} />
-            Operator Dashboard
+            I'm an Operator
           </Button>
         </div>
 
@@ -98,23 +98,13 @@ export default function Hero({ setActiveView }) {
             gap: 30,
             marginTop: 42,
             color: "#64748B",
+            fontWeight: 600,
             flexWrap: "wrap",
           }}
         >
-          <div>
-            <h3 style={{ margin: 0, fontSize: 30 }}>8+</h3>
-            Demo Vehicles
-          </div>
-
-          <div>
-            <h3 style={{ margin: 0, fontSize: 30 }}>4</h3>
-            Active Routes
-          </div>
-
-          <div>
-            <h3 style={{ margin: 0, fontSize: 30 }}>91%</h3>
-            ETA Accuracy
-          </div>
+          <span>🚍 Live Fleet Tracking</span>
+          <span>🧠 AI Dispatch</span>
+          <span>📍 Real-Time ETA</span>
         </div>
       </div>
 
@@ -122,11 +112,11 @@ export default function Hero({ setActiveView }) {
 
       <div
         style={{
-          background: "rgba(255,255,255,.9)",
-          backdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,.92)",
+          backdropFilter: "blur(18px)",
           borderRadius: 28,
-          padding: 28,
-          boxShadow: "0 25px 60px rgba(15,23,42,.12)",
+          padding: 34,
+          boxShadow: "0 25px 70px rgba(37,99,235,.18)",
           border: "1px solid #E2E8F0",
         }}
       >
@@ -134,94 +124,121 @@ export default function Hero({ setActiveView }) {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginBottom: 24,
+            alignItems: "center",
+            marginBottom: 28,
           }}
         >
-          <strong>🚍 Live Fleet</strong>
-
-          <span
+          <h2
             style={{
-              color: "#22C55E",
-              fontWeight: 700,
+              margin: 0,
+              color: "#0F172A",
             }}
           >
-            ● LIVE
-          </span>
-        </div>
-
-        <div
-          style={{
-            background: "#EFF6FF",
-            borderRadius: 18,
-            padding: 20,
-            marginBottom: 18,
-          }}
-        >
-          <strong>🚌 BUS-01</strong>
+            🚍 Live Fleet Status
+          </h2>
 
           <div
             style={{
-              color: "#64748B",
-              marginTop: 8,
+              background: "#DCFCE7",
+              color: "#15803D",
+              padding: "6px 14px",
+              borderRadius: 999,
+              fontWeight: 700,
+              fontSize: 13,
             }}
           >
-            Cubao → Katipunan
+            ● DEMO LIVE
           </div>
         </div>
 
-        <Row title="ETA" value="6 mins" />
-        <Row title="Passengers" value="24 / 32" />
-        <Row title="Speed" value="31 km/h" />
-        <Row title="Status" value="On Route" />
+        {[
+          ["Vehicles Online", "18"],
+          ["Passengers Today", "1,248"],
+          ["Average ETA", "5 mins"],
+          ["Average Speed", "31 km/h"],
+          ["AI Confidence", "97%"],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "18px 0",
+              borderBottom: "1px solid #E2E8F0",
+            }}
+          >
+            <span style={{ color: "#475569" }}>{label}</span>
+
+            <strong>{value}</strong>
+          </div>
+        ))}
 
         <div
           style={{
-            marginTop: 28,
-            height: 12,
-            background: "#E2E8F0",
-            borderRadius: 999,
-            overflow: "hidden",
+            marginTop: 26,
+            background: "#F8FAFC",
+            borderRadius: 14,
+            padding: 18,
           }}
         >
           <div
             style={{
-              width: "78%",
-              height: "100%",
-              background: "#2563EB",
+              fontWeight: 700,
+              marginBottom: 12,
             }}
-          />
+          >
+            Fleet Health
+          </div>
+
+          <div
+            style={{
+              height: 10,
+              background: "#E2E8F0",
+              borderRadius: 999,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: "94%",
+                height: "100%",
+                background: "linear-gradient(90deg,#2563EB,#60A5FA)",
+              }}
+            />
+          </div>
+
+          <small
+            style={{
+              display: "block",
+              marginTop: 10,
+              color: "#64748B",
+            }}
+          >
+            Fleet operating normally.
+          </small>
         </div>
 
-        <div
+        <button
           style={{
-            marginTop: 24,
+            width: "100%",
+            marginTop: 28,
+            padding: 16,
+            borderRadius: 16,
+            border: "none",
+            background: "#2563EB",
+            color: "#fff",
+            fontWeight: 700,
             display: "flex",
+            justifyContent: "center",
             alignItems: "center",
             gap: 10,
-            color: "#64748B",
+            cursor: "pointer",
           }}
         >
-          <MapPinned size={18} />
-          Live vehicle telemetry simulation
-        </div>
+          Explore Live Demo
+          <ArrowRight size={18} />
+        </button>
       </div>
     </section>
-  );
-}
-
-function Row({ title, value }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "14px 0",
-        borderBottom: "1px solid #E2E8F0",
-      }}
-    >
-      <span style={{ color: "#64748B" }}>{title}</span>
-
-      <strong>{value}</strong>
-    </div>
   );
 }

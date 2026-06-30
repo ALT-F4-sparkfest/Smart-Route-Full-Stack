@@ -1,4 +1,4 @@
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Sparkles } from "lucide-react";
 
 export default function SearchOverlay({
   destination,
@@ -10,124 +10,119 @@ export default function SearchOverlay({
     <div
       style={{
         position: "absolute",
-        top: 20,
+        top: 24,
         left: "50%",
         transform: "translateX(-50%)",
-        width: "min(92%, 560px)",
-        zIndex: 100,
+        width: "min(92%,680px)",
+        zIndex: 50,
       }}
     >
+      {/* Demo Badge */}
+
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 14,
+          padding: "8px 16px",
+          borderRadius: 999,
+          background: "#2563EB",
+          color: "white",
+          fontWeight: 700,
+          fontSize: 13,
+          boxShadow: "0 10px 24px rgba(37,99,235,.28)",
+        }}
+      >
+        <Sparkles size={14} />
+        DEMO MODE
+      </div>
+
+      {/* Search */}
+
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 14,
-          background: "rgba(255,255,255,.90)",
-          backdropFilter: "blur(18px)",
-          WebkitBackdropFilter: "blur(18px)",
+          padding: "16px 18px",
+          background: "rgba(255,255,255,.92)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           borderRadius: 22,
-          padding: "14px 18px",
-          border: "1px solid rgba(255,255,255,.4)",
-          boxShadow: "0 18px 40px rgba(15,23,42,.15)",
+          boxShadow: "0 22px 50px rgba(15,23,42,.18)",
+          border: "1px solid rgba(255,255,255,.45)",
         }}
       >
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 14,
-            background: "#DBEAFE",
-            color: "#2563EB",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <Search size={20} />
-        </div>
+        <Search color="#64748B" />
 
-        <div
+        <input
+          type="text"
+          placeholder="Where are you going today?"
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
           style={{
             flex: 1,
+            border: "none",
+            outline: "none",
+            background: "transparent",
+            fontSize: 16,
+            color: "#0F172A",
           }}
-        >
-          <div
-            style={{
-              fontSize: 12,
-              color: "#64748B",
-              marginBottom: 2,
-            }}
-          >
-            Destination
-          </div>
-
-          <input
-            type="text"
-            placeholder="Where are you going?"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            style={{
-              width: "100%",
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "#0F172A",
-            }}
-          />
-        </div>
+        />
 
         <button
           onClick={onSearch}
-          disabled={loading}
           style={{
-            width: 52,
-            height: 52,
+            width: 48,
+            height: 48,
+            borderRadius: 16,
             border: "none",
-            borderRadius: 18,
+            background: "#2563EB",
+            color: "white",
             cursor: "pointer",
-            background: "linear-gradient(135deg,#2563EB,#3B82F6)",
-            color: "#fff",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            boxShadow: "0 10px 25px rgba(37,99,235,.35)",
-            transition: ".2s",
+            boxShadow: "0 10px 24px rgba(37,99,235,.28)",
           }}
         >
           {loading ? "..." : <MapPin size={20} />}
         </button>
       </div>
 
+      {/* Route Chips */}
+
       <div
         style={{
           display: "flex",
-          gap: 8,
-          marginTop: 12,
-          flexWrap: "wrap",
+          gap: 10,
+          marginTop: 14,
+          overflowX: "auto",
         }}
       >
-        {["Cubao", "Katipunan", "SM North", "UP Diliman"].map((route) => (
-          <button
-            key={route}
-            onClick={() => setDestination(route)}
-            style={{
-              border: "none",
-              borderRadius: 999,
-              background: "rgba(255,255,255,.88)",
-              backdropFilter: "blur(12px)",
-              padding: "8px 14px",
-              cursor: "pointer",
-              fontWeight: 600,
-              color: "#334155",
-              boxShadow: "0 8px 18px rgba(0,0,0,.10)",
-            }}
-          >
-            {route}
-          </button>
-        ))}
+        {["Cubao", "Katipunan", "Makati", "SM North", "UP Diliman"].map(
+          (route) => (
+            <button
+              key={route}
+              onClick={() => setDestination(route)}
+              style={{
+                border: "none",
+                padding: "10px 18px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,.92)",
+                backdropFilter: "blur(18px)",
+                color: "#2563EB",
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                boxShadow: "0 8px 18px rgba(15,23,42,.10)",
+              }}
+            >
+              {route}
+            </button>
+          ),
+        )}
       </div>
     </div>
   );
