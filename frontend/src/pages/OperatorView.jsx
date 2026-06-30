@@ -1,4 +1,5 @@
 // src/pages/OperatorView.jsx
+import AIRecommendationPanel from "../components/operator/AIRecommendationPanel";
 
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
