@@ -1,115 +1,201 @@
-import { db } from "../firebase";
-import { ref, onValue } from "firebase/database";
+// src/pages/CommuterView.jsx
 import { useState, useEffect, useRef } from "react";
-import LiveMap from "../components/LiveMap";
-import VehicleList from "../components/VehicleList";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  useMap,
+} from "@vis.gl/react-google-maps";
+import io from "socket.io-client";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-export default function CommuterView() {
-  const [vehicles, setVehicles] = useState({});
-  const [connected, setConnected] = useState(false);
-  const [waitingCount, setWaitingCount] = useState(0);
-  const [reportSent, setReportSent] = useState(false);
-  const [eta, setEta] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const ws = useRef(null);
+// Map Controls Component (same as before)
+function MapControls({ onRefresh, onCenter }) {
+  const map = useMap();
 
-  useEffect(() => {
-    ws.current = new WebSocket(`${WS_URL}/ws`);
-    ws.current.onopen = () => setConnected(true);
-    ws.current.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "vehicle_update") {
-        setVehicles((prev) => ({
-          ...prev,
-          [msg.data.vehicle_id]: msg.data,
-        }));
-      }
-      if (msg.type === "waiting_update") {
-        setWaitingCount(msg.total);
-      }
-    };
-    ws.current.onclose = () => setConnected(false);
-
-    const vehiclesRef = ref(db, "vehicles");
-    onValue(vehiclesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) setVehicles(data);
-    });
-
-    return () => ws.current.close();
-  }, []);
-
-  const fetchEta = (lat, lng) => {
-    fetch(`${BACKEND_URL}/eta?lat=${lat}&lng=${lng}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.eta !== null) setEta(d);
-      });
+  const handleCenter = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map?.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          map?.setZoom(16);
+        },
+        () => alert("Unable to get your location. Please enable GPS."),
+      );
+    } else {
+      alert("Geolocation not supported by your browser.");
+    }
   };
 
-  const reportWaiting = () => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords;
-      setUserLocation({ lat: latitude, lng: longitude });
-
-      fetch(`${BACKEND_URL}/commuter/waiting`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat: latitude, lng: longitude }),
-      });
-
-      fetchEta(latitude, longitude);
-      setReportSent(true);
-      setTimeout(() => setReportSent(false), 3000);
-    });
+  const handleRefresh = () => {
+    map?.panTo({ lat: 14.5995, lng: 120.9842 });
+    map?.setZoom(13);
+    onRefresh?.();
   };
 
   return (
-    <div className="page-content">
-      <div className="commuter-bar">
-        <div className="commuter-status">
-          <div className={`status-badge ${connected ? "online" : "offline"}`}>
-            <span className="status-dot"></span>
-            {connected ? "Live" : "Offline"}
+    <div className="map-controls">
+      <button onClick={handleRefresh} className="ctrl-btn" title="Refresh view">
+        🔄
+      </button>
+      <button
+        onClick={handleCenter}
+        className="ctrl-btn"
+        title="Center my location"
+      >
+        📍
+      </button>
+    </div>
+  );
+}
+
+export default function CommuterView() {
+  const [vehicles, setVehicles] = useState({});
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [connected, setConnected] = useState(false);
+  const socketRef = useRef(null);
+
+  const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
+  // Connect to Socket.IO
+  useEffect(() => {
+    // Create socket connection
+    socketRef.current = io(BACKEND_URL, {
+      transports: ["websocket"],
+    });
+
+    socketRef.current.on("connect", () => {
+      setConnected(true);
+      console.log("🔌 Socket.IO connected");
+    });
+
+    socketRef.current.on("disconnect", () => {
+      setConnected(false);
+      console.log("🔌 Socket.IO disconnected");
+    });
+
+    socketRef.current.on("vehicle-update", (vehicleData) => {
+      setVehicles((prev) => ({
+        ...prev,
+        [vehicleData.id]: vehicleData,
+      }));
+    });
+
+    // Fetch initial vehicles
+    fetch(`${BACKEND_URL}/vehicles`)
+      .then((res) => res.json())
+      .then((data) => {
+        const vehicleMap = {};
+        data.forEach((v) => {
+          vehicleMap[v.id || v.vehicle_id] = v;
+        });
+        setVehicles(vehicleMap);
+      })
+      .catch((err) => console.error("Error fetching vehicles:", err));
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, [BACKEND_URL]);
+
+  const vehicleList = Object.values(vehicles);
+  const filteredVehicles = vehicleList.filter((v) =>
+    v.route?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const handleWaiting = () => {
+    setIsWaiting(!isWaiting);
+    // Optionally send waiting event via socket
+    if (!isWaiting && socketRef.current) {
+      socketRef.current.emit("commuter-waiting", {
+        lat: 14.5995,
+        lng: 120.9842,
+        route: "Cubao-Makati",
+      });
+    }
+  };
+
+  const handleRefresh = () => {
+    fetch(`${BACKEND_URL}/vehicles`)
+      .then((res) => res.json())
+      .then((data) => {
+        const vehicleMap = {};
+        data.forEach((v) => {
+          vehicleMap[v.id || v.vehicle_id] = v;
+        });
+        setVehicles(vehicleMap);
+      })
+      .catch((err) => console.error("Error refreshing vehicles:", err));
+  };
+
+  return (
+    <div className="commuter-view">
+      <div className="commuter-map-container">
+        <APIProvider apiKey={API_KEY}>
+          <div style={{ position: "relative", height: "100%", width: "100%" }}>
+            <Map
+              defaultCenter={{ lat: 14.5995, lng: 120.9842 }}
+              defaultZoom={13}
+              mapId="commuter-map"
+              style={{ height: "100%", width: "100%" }}
+              disableDefaultUI={true}
+            >
+              {filteredVehicles.map((v) => (
+                <AdvancedMarker
+                  key={v.id || v.vehicle_id}
+                  position={{ lat: v.lat, lng: v.lng }}
+                >
+                  <div style={{ fontSize: "28px", cursor: "pointer" }}>🚌</div>
+                </AdvancedMarker>
+              ))}
+            </Map>
+            <MapControls onRefresh={handleRefresh} onCenter={() => {}} />
           </div>
-          <span className="vehicle-count">
-            {Object.keys(vehicles).length} vehicle(s) active
-          </span>
-          {waitingCount > 0 && (
-            <span className="waiting-count">
-              🧍 {waitingCount} waiting nearby
-            </span>
-          )}
-        </div>
+        </APIProvider>
+      </div>
+
+      <div className="commuter-status">
+        <span className="vehicle-count">
+          {filteredVehicles.length} vehicle(s) active
+          {connected ? " 🔵" : " 🔴"}
+        </span>
         <button
-          className={`waiting-btn ${reportSent ? "sent" : ""}`}
-          onClick={reportWaiting}
+          className={`waiting-btn ${isWaiting ? "active" : ""}`}
+          onClick={handleWaiting}
         >
-          {reportSent ? "✓ Reported!" : "🙋 I'm Waiting for a Jeep"}
+          {isWaiting ? "🟢 Waiting..." : "🟡 I'm Waiting for a Jeep"}
         </button>
       </div>
 
-      {eta && (
-        <div className="eta-banner">
-          <div className="eta-main">
-            <span className="eta-icon">🚌</span>
-            <div>
-              <div className="eta-time">{eta.eta} mins away</div>
-              <div className="eta-route">
-                {eta.nearest.route} · {eta.nearest.speed} km/h
-              </div>
-            </div>
-          </div>
-          <div className="eta-vehicle">{eta.nearest.vehicle_id}</div>
-        </div>
-      )}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="🔍 Search route..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
-      <div className="content">
-        <LiveMap vehicles={vehicles} />
-        <VehicleList vehicles={vehicles} />
+      <div className="commuter-list">
+        {filteredVehicles.length === 0 ? (
+          <p className="empty-state">No vehicles found for this route</p>
+        ) : (
+          filteredVehicles.map((v) => (
+            <div key={v.id || v.vehicle_id} className="vehicle-item">
+              <span className="vehicle-icon">🚌</span>
+              <div className="vehicle-info">
+                <div className="vehicle-id">{v.id || v.vehicle_id}</div>
+                <div className="vehicle-route">
+                  {v.route || "Unknown route"}
+                </div>
+              </div>
+              <div className="vehicle-speed">{v.speed || 0} km/h</div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
