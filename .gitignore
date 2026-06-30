@@ -5,3 +5,6 @@ backend/backendserviceAccountKey.json
 # Environment files
 *.env
 *.env.local
+
+
+echo "backend/backendserviceAccountKey.json" >> .gitignorebackend/backendserviceAccountKey.json
