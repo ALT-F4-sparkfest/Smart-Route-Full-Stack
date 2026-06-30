@@ -1,32 +1,26 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
-import { Bus } from "lucide-react";
-import useAnimatedPosition from "../../hooks/useAnimatedPosition";
+import { Navigation } from "lucide-react";
 
-export default function VehicleMarker({ vehicle, selected, onClick }) {
-  const position = useAnimatedPosition({
-    lat: vehicle.lat,
-    lng: vehicle.lng,
-  });
+export default function UserMarker({ position }) {
+  if (!position) return null;
+  if (position.lat == null || position.lng == null) return null;
 
   return (
-    <AdvancedMarker position={position} onClick={() => onClick?.(vehicle)}>
+    <AdvancedMarker position={position}>
       <div
         style={{
-          width: selected ? 50 : 42,
-          height: selected ? 50 : 42,
+          width: 22,
+          height: 22,
           borderRadius: "50%",
-          background: selected ? "#2563EB" : "#fff",
-          color: selected ? "#fff" : "#2563EB",
+          background: "#2563EB",
+          border: "4px solid white",
+          boxShadow: "0 4px 16px rgba(0,0,0,.25)",
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
-          border: "2px solid #2563EB",
-          boxShadow: "0 10px 24px rgba(0,0,0,.18)",
-          transition: "all .25s",
-          cursor: "pointer",
+          justifyContent: "center",
         }}
       >
-        <Bus size={22} />
+        <Navigation size={12} color="white" />
       </div>
     </AdvancedMarker>
   );

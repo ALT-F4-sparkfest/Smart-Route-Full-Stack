@@ -2,11 +2,10 @@ import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { Bus } from "lucide-react";
 import useAnimatedPosition from "../../hooks/useAnimatedPosition";
 
-export default function VehicleMarker({ vehicle, selected, onClick }) {
-  // Prevent crashes if vehicle data isn't ready
-  if (!vehicle || vehicle.lat == null || vehicle.lng == null) {
-    return null;
-  }
+export default function VehicleMarker({ vehicle, selected = false, onClick }) {
+  if (!vehicle) return null;
+
+  if (vehicle.lat == null || vehicle.lng == null) return null;
 
   const position = useAnimatedPosition({
     lat: vehicle.lat,
@@ -27,8 +26,8 @@ export default function VehicleMarker({ vehicle, selected, onClick }) {
           alignItems: "center",
           border: "2px solid #2563EB",
           boxShadow: "0 10px 24px rgba(0,0,0,.18)",
-          transition: "all .25s",
           cursor: "pointer",
+          transition: ".2s",
         }}
       >
         <Bus size={22} />

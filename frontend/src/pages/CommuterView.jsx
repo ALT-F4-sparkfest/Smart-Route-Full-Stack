@@ -40,16 +40,17 @@ export default function CommuterView({ onBack }) {
   });
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) =>
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }),
-        () => {},
-      );
-    }
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      () => {},
+    );
   }, []);
 
   const vehicleList = DEMO_MODE ? demo.vehicles : [];
@@ -69,7 +70,7 @@ export default function CommuterView({ onBack }) {
     : vehicleList;
 
   const handleWaiting = () => {
-    setIsWaiting(!isWaiting);
+    setIsWaiting((prev) => !prev);
   };
 
   const handleDestinationSubmit = async () => {
@@ -77,14 +78,15 @@ export default function CommuterView({ onBack }) {
 
     setLoadingEta(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    setTimeout(() => {
+      setEta({
+        eta_minutes: Math.floor(Math.random() * 8) + 3,
+        destination,
+        route: nearest[0]?.route || "Demo Route",
+      });
 
-    setEta({
-      eta_minutes: nearest.length ? nearest[0].eta : 6,
-      route: nearest.length ? nearest[0].route : "Katipunan - Cubao",
-    });
-
-    setLoadingEta(false);
+      setLoadingEta(false);
+    }, 700);
   };
 
   return (
