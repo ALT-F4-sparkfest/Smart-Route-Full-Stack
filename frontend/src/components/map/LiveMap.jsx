@@ -17,9 +17,16 @@ export default function LiveMap({
   defaultCenter = { lat: 14.5995, lng: 120.9842 },
   defaultZoom = 13,
   onRefresh,
+  onVehicleSelect,
+  showPopup = true,
   children,
 }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const handleVehicleClick = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    onVehicleSelect?.(vehicle);
+  };
 
   return (
     <APIProvider apiKey={API_KEY}>
@@ -45,7 +52,7 @@ export default function LiveMap({
               key={vehicle.id}
               vehicle={vehicle}
               selected={selectedVehicle?.id === vehicle.id}
-              onClick={setSelectedVehicle}
+              onClick={handleVehicleClick}
             />
           ))}
 
@@ -56,7 +63,7 @@ export default function LiveMap({
 
         <MapControls onRefresh={onRefresh} />
 
-        {selectedVehicle && (
+        {showPopup && selectedVehicle && (
           <div
             style={{
               position: "absolute",

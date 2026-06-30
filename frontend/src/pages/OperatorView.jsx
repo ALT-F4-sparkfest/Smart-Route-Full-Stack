@@ -1,8 +1,10 @@
 // src/pages/OperatorView.jsx
-import FleetMap from "../components/operator/FleetMap";
 
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
+
+import FleetMap from "../components/operator/FleetMap";
+import VehicleDetailsPanel from "../components/operator/VehicleDetailsPanel";
 
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
@@ -19,6 +21,9 @@ export default function OperatorView({ onBack }) {
   const [waiters, setWaiters] = useState([]);
   const [connected, setConnected] = useState(false);
   const [alerts, setAlerts] = useState([]);
+
+  // NEW
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   const socketRef = useRef(null);
 
@@ -96,12 +101,20 @@ export default function OperatorView({ onBack }) {
 
       <KPICards />
 
+      {/* NEW Fleet Map */}
+      <FleetMap
+        vehicles={vehicleList}
+        waitingCommuters={waiters}
+        onVehicleSelect={setSelectedVehicle}
+      />
+
       <TravelTimeChart />
 
       <div className="operator-layout">
-        <FleetMap vehicles={vehicleList} waitingCommuters={waiters} />
-
         <div className="operator-sidebar">
+          {/* NEW Vehicle Details */}
+          <VehicleDetailsPanel vehicle={selectedVehicle} />
+
           <div className="dash-section">
             <h2 className="panel-title">Fleet Overview</h2>
 
