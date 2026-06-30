@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import LiveMap from "../components/LiveMap";
+import KPICards from "../components/KPICards";
+import TravelTimeChart from "../components/TravelTimeChart";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const WS_URL = BACKEND_URL.replace("https", "wss").replace("http", "ws");
@@ -38,6 +40,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="page-content">
+      {/* 🆕 AI Insights: KPI Cards */}
+      <KPICards />
+
+      {/* 🆕 AI Insights: Travel Time Chart */}
+      <TravelTimeChart />
+
+      {/* 🔽 Existing: Map + Sidebar Layout */}
       <div className="dashboard-layout">
         <div className="dashboard-map">
           <LiveMap vehicles={vehicles} waiters={waiters} />
