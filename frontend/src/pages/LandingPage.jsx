@@ -11,7 +11,7 @@ export default function LandingPage({ setActiveView }) {
       <div className="hero-section">
         <div className="hero-badge">🚌 LIVE TRACKING</div>
         <h1 className="hero-title">BUSINA</h1>
-        <p className="hero-tagline">"Busina ng Mas Matalinong Biyahe."</p>
+        <p className="hero-tagline">"Smarter Commutes. Better Journeys."</p>
         <p className="hero-description">
           Real-time jeepney and bus tracking for Metro Manila. Know when your
           ride arrives. Never wait in uncertainty again.
