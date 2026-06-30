@@ -1,12 +1,15 @@
 // src/pages/OperatorView.jsx
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
-import LiveMap from "../components/LiveMap";
+import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
 import hotspots from "../data/demandHotspots.json";
+import { useConnectionStatus } from "../hooks/useConnectionStatus";
+import ConnectionStatusPill from "../components/ConnectionStatusPill";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export default function OperatorView({ onBack }) {
   const [vehicles, setVehicles] = useState({});
@@ -15,6 +18,9 @@ export default function OperatorView({ onBack }) {
   const [alerts, setAlerts] = useState([]);
   const socketRef = useRef(null);
 
+  const { status, markUpdated } = useConnectionStatus(connected);
+
+  // ✅ Socket effect runs ONCE
   useEffect(() => {
     socketRef.current = io(BACKEND_URL, { transports: ["websocket"] });
 
@@ -30,6 +36,7 @@ export default function OperatorView({ onBack }) {
 
     socketRef.current.on("vehicle-update", (vehicleData) => {
       setVehicles((prev) => ({ ...prev, [vehicleData.id]: vehicleData }));
+      markUpdated();
     });
 
     socketRef.current.on("waiting-update", (data) => {
@@ -40,10 +47,20 @@ export default function OperatorView({ onBack }) {
       setAlerts((prev) => [alert, ...prev].slice(0, 20));
     });
 
+    fetch(`${BACKEND_URL}/vehicles`)
+      .then((res) => res.json())
+      .then((data) => {
+        const map = {};
+        data.forEach((v) => (map[v.id || v.vehicle_id] = v));
+        setVehicles(map);
+        markUpdated();
+      })
+      .catch(() => {});
+
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, []);
+  }, []); // <--- EMPTY!
 
   const vehicleList = Object.values(vehicles);
   const topHotspots = [...hotspots]
@@ -59,18 +76,34 @@ export default function OperatorView({ onBack }) {
           </button>
         )}
         <h1 className="operator-title">Fleet Operations</h1>
-        <span className="connection-pill inline">
-          {connected ? "🔵 Live" : "🔴 Offline"}
-        </span>
+        <ConnectionStatusPill status={status} inline />
       </div>
 
       <KPICards />
       <TravelTimeChart />
 
       <div className="operator-layout">
-        {/* Map container with explicit height */}
         <div className="operator-map" style={{ height: "340px" }}>
-          <LiveMap vehicles={vehicles} waiters={waiters} />
+          {/* Direct map fallback instead of LiveMap */}
+          <APIProvider apiKey={API_KEY}>
+            <div style={{ height: "100%", width: "100%" }}>
+              <Map
+                defaultCenter={{ lat: 14.5995, lng: 120.9842 }}
+                defaultZoom={13}
+                mapId="operator-map"
+                style={{ height: "100%", width: "100%" }}
+              >
+                {Object.values(vehicles).map((v) => (
+                  <AdvancedMarker
+                    key={v.id}
+                    position={{ lat: v.lat, lng: v.lng }}
+                  >
+                    <div style={{ fontSize: "24px" }}>🚌</div>
+                  </AdvancedMarker>
+                ))}
+              </Map>
+            </div>
+          </APIProvider>
         </div>
 
         <div className="operator-sidebar">

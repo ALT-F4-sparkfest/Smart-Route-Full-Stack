@@ -1,0 +1,27 @@
+.container {
+  width: min(1400px, 92%);
+  margin: auto;
+}
+
+.mt-lg {
+  margin-top: 32px;
+}
+
+.mb-lg {
+  margin-bottom: 32px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
