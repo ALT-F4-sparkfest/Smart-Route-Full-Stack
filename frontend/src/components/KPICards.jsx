@@ -24,52 +24,53 @@ export default function KPICards() {
 
   const cards = [
     {
-      icon: <Bus size={22} />,
       title: "Active Vehicles",
       value: metrics.activeVehicles,
-      color: "#2563EB",
+      icon: <Bus size={22} />,
+      gradient: "linear-gradient(135deg,#2563EB,#60A5FA)",
     },
     {
-      icon: <Users size={22} />,
       title: "Waiting Riders",
       value: waiters.length,
-      color: "#EF4444",
+      icon: <Users size={22} />,
+      gradient: "linear-gradient(135deg,#EF4444,#FB7185)",
     },
     {
-      icon: <Gauge size={22} />,
       title: "Average Speed",
       value: `${avgSpeed} km/h`,
-      color: "#10B981",
+      icon: <Gauge size={22} />,
+      gradient: "linear-gradient(135deg,#10B981,#34D399)",
     },
     {
-      icon: <Clock3 size={22} />,
       title: "On-Time Rate",
       value: `${metrics.onTimePct}%`,
-      color: "#F59E0B",
+      icon: <Clock3 size={22} />,
+      gradient: "linear-gradient(135deg,#F59E0B,#FBBF24)",
     },
     {
-      icon: <Route size={22} />,
       title: "Trips Today",
       value: metrics.totalTripsToday,
-      color: "#7C3AED",
+      icon: <Route size={22} />,
+      gradient: "linear-gradient(135deg,#7C3AED,#A855F7)",
     },
     {
-      icon: <TrendingUp size={22} />,
       title: "Passengers",
-      value: metrics.totalPassengersToday,
-      color: "#EC4899",
+      value: metrics.totalPassengersToday.toLocaleString(),
+      icon: <TrendingUp size={22} />,
+      gradient: "linear-gradient(135deg,#EC4899,#F472B6)",
     },
     {
-      icon: <DollarSign size={22} />,
-      title: "Estimated Revenue",
+      title: "Revenue",
       value: `₱${(metrics.totalPassengersToday * 15).toLocaleString()}`,
-      color: "#14B8A6",
+      icon: <DollarSign size={22} />,
+      gradient: "linear-gradient(135deg,#14B8A6,#2DD4BF)",
     },
     {
-      icon: <Activity size={22} />,
       title: "Fleet Health",
-      value: "Excellent",
-      color: "#22C55E",
+      value: "98%",
+      subtitle: "Excellent",
+      icon: <Activity size={22} />,
+      gradient: "linear-gradient(135deg,#22C55E,#4ADE80)",
     },
   ];
 
@@ -77,8 +78,8 @@ export default function KPICards() {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))",
-        gap: 18,
+        gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+        gap: 20,
         marginBottom: 28,
       }}
     >
@@ -86,24 +87,39 @@ export default function KPICards() {
         <div
           key={card.title}
           style={{
-            background: "#fff",
-            borderRadius: 18,
-            padding: 20,
-            border: "1px solid #E2E8F0",
-            boxShadow: "0 10px 30px rgba(15,23,42,.08)",
-            transition: ".2s",
+            position: "relative",
+            overflow: "hidden",
+            borderRadius: 24,
+            padding: 24,
+            color: "white",
+            background: card.gradient,
+            boxShadow: "0 18px 45px rgba(0,0,0,.15)",
+            transition: "all .25s ease",
+            minHeight: 150,
           }}
         >
           <div
             style={{
-              width: 46,
-              height: 46,
-              borderRadius: 14,
-              background: `${card.color}20`,
-              color: card.color,
+              position: "absolute",
+              top: -30,
+              right: -30,
+              width: 110,
+              height: 110,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,.12)",
+            }}
+          />
+
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 16,
+              background: "rgba(255,255,255,.18)",
+              backdropFilter: "blur(10px)",
               display: "flex",
-              alignItems: "center",
               justifyContent: "center",
+              alignItems: "center",
               marginBottom: 18,
             }}
           >
@@ -112,9 +128,9 @@ export default function KPICards() {
 
           <div
             style={{
-              fontSize: 30,
-              fontWeight: 700,
-              color: "#0F172A",
+              fontSize: 34,
+              fontWeight: 800,
+              lineHeight: 1,
             }}
           >
             {card.value}
@@ -122,13 +138,25 @@ export default function KPICards() {
 
           <div
             style={{
-              marginTop: 6,
-              color: "#64748B",
-              fontSize: 14,
+              marginTop: 10,
+              fontSize: 15,
+              opacity: 0.95,
             }}
           >
             {card.title}
           </div>
+
+          {card.subtitle && (
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: 13,
+                opacity: 0.8,
+              }}
+            >
+              {card.subtitle}
+            </div>
+          )}
         </div>
       ))}
     </div>
