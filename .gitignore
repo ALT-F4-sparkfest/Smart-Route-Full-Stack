@@ -7,4 +7,4 @@ backend/backendserviceAccountKey.json
 *.env.local
 
 
-echo "backend/backendserviceAccountKey.json" >> .gitignorebackend/backendserviceAccountKey.json
+echo "backend/backendserviceAccountKey.json" >> .gitignore
