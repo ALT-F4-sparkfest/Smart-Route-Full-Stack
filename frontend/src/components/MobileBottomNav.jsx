@@ -1,8 +1,7 @@
-// src/components/MobileBottomNav.jsx
 export default function MobileBottomNav({ activeView, setActiveView }) {
   const tabs = [
     { id: "commuter", label: "Commuter", icon: "🗺️" },
-    { id: "admin", label: "Dashboard", icon: "📊" },
+    { id: "admin", label: "Operator", icon: "📊" }, // Changed
   ];
 
   return (
