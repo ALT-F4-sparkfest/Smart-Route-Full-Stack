@@ -6,6 +6,7 @@
   "scripts": {
     "server": "node server.js",
     "simulator": "node simulator.js",
+    "start": "concurrently \"npm run server\" \"npm run simulator\"",
     "dev": "concurrently \"npm run server\" \"npm run simulator\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
