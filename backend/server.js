@@ -1,190 +1,147 @@
-// server.js
-
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 
+// Import Supabase and ETA
 const supabase = require("./supabase");
 const { calculateEtaToStop, calculateEtasForAllStops } = require("./eta");
-const { startBunchingMonitor, activeAlerts } = require("./bunching");
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
 const server = http.createServer(app);
-
-// -------------------------------
-// Socket.IO
-// -------------------------------
-
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://smart-route-full-stack.vercel.app",
+    ],
     methods: ["GET", "POST"],
   },
 });
 
-// Export io so subscriber.js can use it later
-module.exports.io = io;
+global.io = io;
 
+// --- Socket.IO ---
 io.on("connection", (socket) => {
-  console.log("🟢 Client connected:", socket.id);
+  console.log(`🔌 Client connected: ${socket.id}`);
+
+  // Send initial snapshot from Supabase
+  (async () => {
+    const { data } = await supabase.from("vehicles").select("*");
+    if (data) socket.emit("vehicle_snapshot", data);
+  })();
+
+  socket.on("subscribe-vehicle", (vehicleId) => {
+    socket.join(`vehicle-${vehicleId}`);
+    console.log(`📡 Client subscribed to vehicle ${vehicleId}`);
+  });
+
+  socket.on("commuter-waiting", (payload) => {
+    console.log("🚏 Commuter waiting:", payload);
+    io.emit("waiting-update", payload);
+  });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected:", socket.id);
+    console.log(`🔌 Client disconnected: ${socket.id}`);
   });
 });
 
-// -------------------------------
-
-app.use(cors());
-app.use(express.json());
-
-/*
-|--------------------------------------------------------------------------
-| GET /alerts
-|--------------------------------------------------------------------------
-*/
-
-app.get("/alerts", (req, res) => {
-  res.json(Object.values(activeAlerts));
-});
-
-/*
-|--------------------------------------------------------------------------
-| GET /vehicles
-|--------------------------------------------------------------------------
-*/
-
-app.get("/vehicles", async (req, res) => {
-  try {
-    const { data, error } = await supabase.from("vehicles").select("*");
-
-    if (error) throw error;
-
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
+// Broadcast update function (called by subscriber)
+global.broadcastVehicleUpdate = (vehicleData) => {
+  if (global.io) {
+    global.io.emit("vehicle_update", vehicleData);
+    console.log(`📤 Broadcasted update for ${vehicleData.id}`);
   }
+};
+
+// --- REST endpoints ---
+
+app.get("/", (req, res) => {
+  res.json({ status: "BUSINA API running" });
 });
 
-/*
-|--------------------------------------------------------------------------
-| GET /vehicles/:id
-|--------------------------------------------------------------------------
-*/
-
-app.get("/vehicles/:id", async (req, res) => {
+// Get all vehicles (live from Supabase)
+app.get("/vehicles", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("vehicles")
       .select("*")
-      .eq("id", req.params.id)
-      .single();
-
-    if (error) {
-      return res.status(404).json({
-        error: "Vehicle not found",
-      });
-    }
-
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
-  }
-});
-
-/*
-|--------------------------------------------------------------------------
-| GET /vehicles/:id/history
-|--------------------------------------------------------------------------
-*/
-
-app.get("/vehicles/:id/history", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { from, to } = req.query;
-
-    let query = supabase
-      .from("history")
-      .select("*")
-      .eq("vehicle_id", id)
-      .order("timestamp", {
-        ascending: true,
-      });
-
-    if (from) query = query.gte("timestamp", Number(from));
-    if (to) query = query.lte("timestamp", Number(to));
-
-    const { data, error } = await query;
+      .order("last_updated", { ascending: false });
 
     if (error) throw error;
-
-    res.json(data);
+    res.json(data || []);
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
+    console.error("Error fetching vehicles:", err.message);
+    res.status(500).json({ error: "Failed to fetch vehicles" });
   }
 });
 
-/*
-|--------------------------------------------------------------------------
-| GET /vehicles/:id/eta/:stopId
-|--------------------------------------------------------------------------
-*/
+// Get vehicle history (placeholder)
+app.get("/vehicles/:id/history", (req, res) => {
+  res.json([]);
+});
 
+// ✅ REAL ETA endpoint
 app.get("/vehicles/:id/eta/:stopId", async (req, res) => {
+  const { id, stopId } = req.params;
+
   try {
-    const result = await calculateEtaToStop(req.params.id, req.params.stopId);
+    const result = await calculateEtaToStop(id, stopId);
+
+    if (result.error) {
+      return res.status(404).json({ error: result.error });
+    }
 
     res.json(result);
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
+    console.error("ETA error:", err);
+    res.status(500).json({ error: "Failed to calculate ETA" });
   }
 });
 
-/*
-|--------------------------------------------------------------------------
-| GET /vehicles/:id/etas
-|--------------------------------------------------------------------------
-*/
-
+// Get ETAs for all stops of a vehicle
 app.get("/vehicles/:id/etas", async (req, res) => {
-  try {
-    const result = await calculateEtasForAllStops(req.params.id);
+  const { id } = req.params;
 
-    res.json(result);
+  try {
+    const results = await calculateEtasForAllStops(id);
+    res.json(results);
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
+    console.error("ETAs error:", err);
+    res.status(500).json({ error: "Failed to calculate ETAs" });
   }
 });
 
-/*
-|--------------------------------------------------------------------------
-| Start Background Services
-|--------------------------------------------------------------------------
-*/
-
-startBunchingMonitor(30000);
-
-/*
-|--------------------------------------------------------------------------
-| Start Server
-|--------------------------------------------------------------------------
-*/
+// Endpoint for commuter waiting (already exists)
+app.post("/commuter/waiting", (req, res) => {
+  console.log("POST /commuter/waiting", req.body);
+  io.emit("waiting-update", req.body);
+  res.json({ status: "ok" });
+});
 
 const PORT = process.env.PORT || 3000;
-
+// Serve route geofence data for frontend
+app.get("/routes/:routeId/geofence", (req, res) => {
+  const { routeId } = req.params;
+  try {
+    const geofence = require("./routes/geofence.json");
+    const coordinates = geofence[routeId]?.coordinates;
+    if (!coordinates) {
+      return res.status(404).json({ error: "Route not found" });
+    }
+    res.json({ routeId, coordinates });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load geofence" });
+  }
+});
 server.listen(PORT, () => {
-  console.log(`🚀 API + Socket.IO running on port ${PORT}`);
+  console.log(`🚀 API running on port ${PORT}`);
+  console.log(`🔌 Socket.IO enabled`);
+  // Start MQTT subscriber
+  require("./subscriber");
 });

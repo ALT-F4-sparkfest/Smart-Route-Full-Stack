@@ -1,12 +1,11 @@
-import { Bus, User, Route, Clock3, Users, Gauge, X } from "lucide-react";
+import { Bus, Route, Clock3, Gauge, Navigation, MapPin, X } from "lucide-react";
 
 export default function VehiclePopup({ vehicle, onClose }) {
   if (!vehicle) return null;
 
-  const occupancy = Math.min(
-    100,
-    Math.round(((vehicle.passengers || 18) / 30) * 100),
-  );
+  const lastSeen = vehicle.last_updated
+    ? new Date(vehicle.last_updated).toLocaleTimeString()
+    : "Unknown";
 
   return (
     <div
@@ -38,13 +37,7 @@ export default function VehiclePopup({ vehicle, onClose }) {
             {vehicle.id}
           </div>
 
-          <div
-            style={{
-              color: "#64748B",
-            }}
-          >
-            Fleet Vehicle
-          </div>
+          <div style={{ color: "#64748B" }}>Live Vehicle</div>
         </div>
 
         <button
@@ -62,62 +55,27 @@ export default function VehiclePopup({ vehicle, onClose }) {
         </button>
       </div>
 
-      <Info
-        icon={<User size={17} />}
-        label="Driver"
-        value={vehicle.driver || "Juan Dela Cruz"}
-      />
-      <Info
-        icon={<Route size={17} />}
-        label="Route"
-        value={vehicle.route || "Cubao"}
-      />
-      <Info
-        icon={<Clock3 size={17} />}
-        label="ETA"
-        value={`${vehicle.eta || 6} mins`}
-      />
+      <Info icon={<Route size={17} />} label="Route" value={vehicle.route_id} />
+
       <Info
         icon={<Gauge size={17} />}
         label="Speed"
-        value={`${vehicle.speed || 32} km/h`}
+        value={`${Math.round(vehicle.speed ?? 0)} km/h`}
       />
+
       <Info
-        icon={<Users size={17} />}
-        label="Passengers"
-        value={vehicle.passengers || 18}
+        icon={<Navigation size={17} />}
+        label="Heading"
+        value={`${vehicle.heading ?? 0}°`}
       />
 
-      <div style={{ marginTop: 18 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: 8,
-            fontWeight: 600,
-          }}
-        >
-          <span>Occupancy</span>
-          <span>{occupancy}%</span>
-        </div>
+      <Info
+        icon={<MapPin size={17} />}
+        label="On Route"
+        value={vehicle.on_route ? "Yes" : "No"}
+      />
 
-        <div
-          style={{
-            height: 10,
-            background: "#E2E8F0",
-            borderRadius: 999,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              width: `${occupancy}%`,
-              height: "100%",
-              background: "linear-gradient(90deg,#2563EB,#60A5FA)",
-            }}
-          />
-        </div>
-      </div>
+      <Info icon={<Clock3 size={17} />} label="Last Update" value={lastSeen} />
 
       <div
         style={{
@@ -125,15 +83,16 @@ export default function VehiclePopup({ vehicle, onClose }) {
           display: "flex",
           alignItems: "center",
           gap: 10,
-          background: "#DCFCE7",
-          color: "#15803D",
+          background: vehicle.on_route ? "#DCFCE7" : "#FEE2E2",
+          color: vehicle.on_route ? "#15803D" : "#DC2626",
           padding: "10px 14px",
           borderRadius: 12,
           fontWeight: 700,
         }}
       >
         <Bus size={18} />
-        Vehicle Operating Normally
+
+        {vehicle.on_route ? "Vehicle Operating Normally" : "Vehicle Off Route"}
       </div>
     </div>
   );

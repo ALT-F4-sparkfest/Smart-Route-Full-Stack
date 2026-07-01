@@ -1,85 +1,115 @@
-// src/components/map/LiveMap.jsx
+// frontend/src/components/map/LiveMap.jsx
 
-import { useState } from "react";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
-
+import { useMemo, useEffect } from "react";
+import {
+  GoogleMap,
+  Marker,
+  Polyline,
+  useLoadScript,
+} from "@react-google-maps/api";
 import VehicleMarker from "./VehicleMarker";
-import UserMarker from "./UserMarker";
-import MapControls from "./MapControls";
-import VehiclePopup from "./VehiclePopup";
+import useRouteGeometry from "../../hooks/useRouteGeometry";
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const mapContainerStyle = { width: "100%", height: "100%" };
+const defaultCenter = { lat: 14.625, lng: 121.048 };
 
 export default function LiveMap({
   vehicles = [],
-  userLocation = null,
-  mapId = "busina-map",
-  defaultCenter = { lat: 14.5995, lng: 120.9842 },
-  defaultZoom = 13,
-  onRefresh,
+  userLocation,
+  mapId,
+  center,
+  routeId,
+  selectedVehicleId,
   onVehicleSelect,
-  showPopup = true,
-  children,
 }) {
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
-  const handleVehicleClick = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    onVehicleSelect?.(vehicle);
-  };
+  const { coordinates: routeCoords, loading: routeLoading } =
+    useRouteGeometry(routeId);
+
+  // Determine map center: if selected vehicle exists, use its coordinates
+  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId);
+  const mapCenter = selectedVehicle
+    ? { lat: selectedVehicle.lat, lng: selectedVehicle.lng }
+    : center || userLocation || defaultCenter;
+
+  const options = useMemo(
+    () => ({
+      disableDefaultUI: true,
+      zoomControl: true,
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }],
+        },
+      ],
+    }),
+    [],
+  );
+
+  // Auto-center when selected vehicle moves
+  useEffect(() => {
+    if (window.mapRef && selectedVehicle) {
+      window.mapRef.panTo({
+        lat: selectedVehicle.lat,
+        lng: selectedVehicle.lng,
+      });
+    }
+  }, [selectedVehicle]);
+
+  if (loadError) return <div>Error loading map</div>;
+  if (!isLoaded) return <div>Loading map...</div>;
+
+  const vehicleArray = Array.isArray(vehicles) ? vehicles : [];
 
   return (
-    <APIProvider apiKey={API_KEY}>
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        <Map
-          defaultCenter={defaultCenter}
-          defaultZoom={defaultZoom}
-          mapId={mapId}
-          disableDefaultUI
-          style={{
-            width: "100%",
-            height: "100%",
+    <GoogleMap
+      id={mapId}
+      mapContainerStyle={mapContainerStyle}
+      zoom={14}
+      center={mapCenter}
+      options={options}
+      onLoad={(map) => {
+        window.mapRef = map;
+      }}
+    >
+      {userLocation && (
+        <Marker
+          position={userLocation}
+          icon={{
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "#2563EB",
+            fillOpacity: 1,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 3,
+            scale: 10,
           }}
-        >
-          {vehicles.map((vehicle) => (
-            <VehicleMarker
-              key={vehicle.id}
-              vehicle={vehicle}
-              selected={selectedVehicle?.id === vehicle.id}
-              onClick={handleVehicleClick}
-            />
-          ))}
+        />
+      )}
 
-          {userLocation && <UserMarker position={userLocation} />}
+      {!routeLoading && routeCoords && routeCoords.length > 1 && (
+        <Polyline
+          path={routeCoords}
+          options={{
+            strokeColor: "#2563EB",
+            strokeOpacity: 0.5,
+            strokeWeight: 5,
+            geodesic: true,
+          }}
+        />
+      )}
 
-          {children}
-        </Map>
-
-        <MapControls onRefresh={onRefresh} />
-
-        {showPopup && selectedVehicle && (
-          <div
-            style={{
-              position: "absolute",
-              top: 20,
-              right: 20,
-              width: 320,
-              zIndex: 1000,
-            }}
-          >
-            <VehiclePopup
-              vehicle={selectedVehicle}
-              onClose={() => setSelectedVehicle(null)}
-            />
-          </div>
-        )}
-      </div>
-    </APIProvider>
+      {vehicleArray.map((vehicle) => (
+        <VehicleMarker
+          key={vehicle.id}
+          vehicle={vehicle}
+          isSelected={vehicle.id === selectedVehicleId}
+          onClick={onVehicleSelect}
+        />
+      ))}
+    </GoogleMap>
   );
 }

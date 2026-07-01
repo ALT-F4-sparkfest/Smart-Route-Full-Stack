@@ -1,6 +1,8 @@
 require("dotenv").config();
 
+const axios = require("axios");
 const mqtt = require("mqtt");
+
 const supabase = require("./supabase");
 
 const { isOnRoute } = require("./geofence");
@@ -91,11 +93,34 @@ client.on("message", async (topic, message) => {
       on_route: onRoute,
     };
 
+    // ------------------------------------
+    // Save latest state to Supabase
+    // ------------------------------------
+
     const { error } = await supabase.from("vehicles").upsert(vehicle);
 
     if (error) {
       console.error("❌ Supabase error:", error.message);
       return;
+    }
+
+    // ------------------------------------
+    // Broadcast via Socket.IO if available
+    // ------------------------------------
+
+    if (global.broadcastVehicleUpdate) {
+      global.broadcastVehicleUpdate({
+        id: vehicleId,
+        route_id: vehicleRoutes[vehicleId] || null,
+        lat,
+        lng,
+        speed: speed || 0,
+        heading: heading || 0,
+        on_route: onRoute,
+        last_updated: timestamp,
+        stationary_since: state.stationarySince,
+        recent_speeds: state.recentSpeeds,
+      });
     }
 
     console.log(
@@ -111,5 +136,5 @@ client.on("error", (err) => {
 });
 
 process.on("unhandledRejection", (reason) => {
-  console.error("Unhandled Rejection:", reason);
+  console.error("❌ Unhandled Rejection:", reason);
 });
