@@ -5,7 +5,7 @@ export default function SearchOverlay({
   setDestination,
   onSearch,
   loading,
-  connected, // <-- new prop
+  connected, // <-- kept in props (you can remove it too if not used elsewhere)
 }) {
   return (
     <div
@@ -18,27 +18,8 @@ export default function SearchOverlay({
         zIndex: 50,
       }}
     >
-      {/* Status Badge - now dynamic */}
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 14,
-          padding: "8px 16px",
-          borderRadius: 999,
-          background: connected ? "#2563EB" : "#EF4444", // blue if live, red if offline
-          color: "white",
-          fontWeight: 700,
-          fontSize: 13,
-          boxShadow: connected
-            ? "0 10px 24px rgba(37,99,235,.28)"
-            : "0 10px 24px rgba(239,68,68,.28)",
-        }}
-      >
-        <Sparkles size={14} />
-        {connected ? "LIVE" : "OFFLINE"}
-      </div>
+      {/* 🚫 Removed the "LIVE / OFFLINE" badge here */}
+
       {/* Search - unchanged */}
       <div
         style={{
@@ -90,7 +71,8 @@ export default function SearchOverlay({
           {loading ? "..." : <MapPin size={20} />}
         </button>
       </div>
-     {/* Route Chips - unchanged */}
+
+      {/* Route Chips - unchanged */}
       <div
         style={{
           display: "flex",

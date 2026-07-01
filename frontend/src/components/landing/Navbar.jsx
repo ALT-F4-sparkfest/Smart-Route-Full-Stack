@@ -17,14 +17,12 @@ export default function Navbar() {
         WebkitBackdropFilter: "blur(20px)",
         border: "1px solid rgba(255,255,255,.45)",
         boxShadow: "0 20px 45px rgba(15,23,42,.12)",
-
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
       }}
     >
       {/* LEFT */}
-
       <div
         style={{
           display: "flex",
@@ -47,7 +45,6 @@ export default function Navbar() {
         >
           <Bus size={28} />
         </div>
-
         <div>
           <div
             style={{
@@ -58,7 +55,6 @@ export default function Navbar() {
           >
             BUSINA
           </div>
-
           <div
             style={{
               fontSize: 14,
@@ -71,7 +67,6 @@ export default function Navbar() {
       </div>
 
       {/* CENTER */}
-
       <div
         style={{
           display: "flex",
@@ -80,15 +75,15 @@ export default function Navbar() {
         }}
       >
         <Badge text="Real-Time Tracking" color="#2563EB" />
-
         <Badge text="AI Dispatch" color="#7C3AED" />
-
         <Badge text="Real-Time ETA" color="#22C55E" />
       </div>
 
-      {/* RIGHT */}
-
-      <button
+      {/* RIGHT – now links to GitHub */}
+      <a
+        href="https://github.com/ALT-F4-sparkfest"
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
           display: "flex",
           alignItems: "center",
@@ -102,11 +97,12 @@ export default function Navbar() {
           fontWeight: 700,
           fontSize: 15,
           boxShadow: "0 10px 24px rgba(37,99,235,.25)",
+          textDecoration: "none",
         }}
       >
         <GitBranch size={18} />
         Source Code
-      </button>
+      </a>
     </nav>
   );
 }

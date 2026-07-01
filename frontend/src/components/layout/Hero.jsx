@@ -168,7 +168,6 @@ export default function Hero({ setActiveView }) {
             }}
           >
             <span style={{ color: "#475569" }}>{label}</span>
-
             <strong>{value}</strong>
           </div>
         ))}
@@ -189,7 +188,6 @@ export default function Hero({ setActiveView }) {
           >
             Fleet Health
           </div>
-
           <div
             style={{
               height: 10,
@@ -206,7 +204,6 @@ export default function Hero({ setActiveView }) {
               }}
             />
           </div>
-
           <small
             style={{
               display: "block",
@@ -218,7 +215,9 @@ export default function Hero({ setActiveView }) {
           </small>
         </div>
 
+        {/* ✅ Only change: added onClick to this button */}
         <button
+          onClick={() => alert("Feature coming in a future update")}
           style={{
             width: "100%",
             marginTop: 28,

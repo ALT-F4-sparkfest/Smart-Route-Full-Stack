@@ -198,7 +198,9 @@ export default function AIRecommendationPanel({
           />
         </div>
 
+        {/* ✅ Only change: added onClick to this button */}
         <button
+          onClick={() => alert("Feature coming in a future update")}
           style={{
             width: "100%",
             marginTop: 24,
