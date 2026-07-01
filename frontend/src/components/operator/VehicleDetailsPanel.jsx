@@ -1,6 +1,5 @@
 import {
   Bus,
-  User,
   Gauge,
   Users,
   Route,
@@ -66,6 +65,18 @@ export default function VehicleDetailsPanel({ vehicle }) {
 
   const delayed = (vehicle.delay ?? 0) > 5;
 
+  // Backend compatibility
+  const route =
+    vehicle.route || vehicle.route_id || vehicle.routeId || "Unknown Route";
+
+  const destination = vehicle.destination || vehicle.nearest_stop || "Terminal";
+
+  const eta = vehicle.eta ?? vehicle.eta_minutes ?? "--";
+
+  const speed = Number(vehicle.speed ?? 0).toFixed(1);
+
+  const driver = vehicle.driver || "BUSINA Vehicle";
+
   return (
     <div
       style={{
@@ -106,7 +117,7 @@ export default function VehicleDetailsPanel({ vehicle }) {
               fontSize: 22,
             }}
           >
-            {vehicle.driver?.charAt(0) || "J"}
+            {driver.charAt(0)}
           </div>
 
           <div>
@@ -125,7 +136,7 @@ export default function VehicleDetailsPanel({ vehicle }) {
                 color: "#64748B",
               }}
             >
-              {vehicle.driver || "Juan Dela Cruz"}
+              {driver}
             </div>
           </div>
         </div>
@@ -205,16 +216,12 @@ export default function VehicleDetailsPanel({ vehicle }) {
           marginTop: 28,
         }}
       >
-        <Info
-          icon={<Route size={18} />}
-          label="Route"
-          value={vehicle.route || "Cubao - Katipunan"}
-        />
+        <Info icon={<Route size={18} />} label="Route" value={route} />
 
         <Info
           icon={<Gauge size={18} />}
           label="Speed"
-          value={`${vehicle.speed || 0} km/h`}
+          value={`${speed} km/h`}
         />
 
         <Info
@@ -223,16 +230,18 @@ export default function VehicleDetailsPanel({ vehicle }) {
           value={`${passengers}/${capacity}`}
         />
 
+        <Info icon={<Clock3 size={18} />} label="ETA" value={`${eta} min`} />
+
         <Info
-          icon={<Clock3 size={18} />}
-          label="ETA"
-          value={`${vehicle.eta || 5} mins`}
+          icon={<MapPinned size={18} />}
+          label="Nearest Stop"
+          value={destination}
         />
 
         <Info
           icon={<MapPinned size={18} />}
-          label="Destination"
-          value={vehicle.destination || "Terminal"}
+          label="GPS"
+          value={`${Number(vehicle.lat).toFixed(5)}, ${Number(vehicle.lng).toFixed(5)}`}
         />
       </div>
 
@@ -246,19 +255,19 @@ export default function VehicleDetailsPanel({ vehicle }) {
           marginTop: 28,
         }}
       >
-        <MiniCard
-          title="Speed"
-          value={`${vehicle.speed || 0}`}
-          color="#DBEAFE"
-        />
+        <MiniCard title="Speed" value={speed} color="#DBEAFE" />
 
         <MiniCard
-          title="Delay"
-          value={`${vehicle.delay || 0}m`}
+          title="Heading"
+          value={`${Math.round(vehicle.heading ?? 0)}°`}
           color="#FEF3C7"
         />
 
-        <MiniCard title="Load" value={`${occupancy}%`} color="#DCFCE7" />
+        <MiniCard
+          title="On Route"
+          value={vehicle.onRoute ? "YES" : "NO"}
+          color="#DCFCE7"
+        />
       </div>
     </div>
   );

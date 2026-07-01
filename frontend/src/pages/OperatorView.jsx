@@ -1,7 +1,9 @@
 // src/pages/OperatorView.jsx
 
-import { useState, useEffect, useRef } from "react";
-import io from "socket.io-client";
+import { useState } from "react";
+
+import useBackendVehicles from "../hooks/useBackendVehicles";
+import useBackendAlerts from "../hooks/useBackendAlerts";
 
 import FleetMap from "../components/operator/FleetMap";
 import VehicleDetailsPanel from "../components/operator/VehicleDetailsPanel";
@@ -13,86 +15,15 @@ import TravelTimeChart from "../components/TravelTimeChart";
 import hotspots from "../data/demandHotspots.json";
 
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
-import { useConnectionStatus } from "../hooks/useConnectionStatus";
-import { useDemoSimulation } from "../hooks/useDemoSimulation";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
-
-const DEMO_MODE = true;
 
 export default function OperatorView({ onBack }) {
-  const [vehicles, setVehicles] = useState({});
-  const [waiters, setWaiters] = useState([]);
-  const [connected, setConnected] = useState(false);
-  const [alerts, setAlerts] = useState([]);
+  const { vehicles, connected, usingDemo } = useBackendVehicles();
+
+  const alerts = useBackendAlerts();
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  const socketRef = useRef(null);
-
-  const demo = useDemoSimulation();
-
-  const { status, markUpdated } = useConnectionStatus(connected);
-
-  useEffect(() => {
-    if (DEMO_MODE) return;
-
-    socketRef.current = io(BACKEND_URL, {
-      transports: ["websocket"],
-    });
-
-    socketRef.current.on("connect", () => {
-      setConnected(true);
-
-      fetch(`${BACKEND_URL}/commuter/waiting/all`)
-        .then((r) => r.json())
-        .then((d) => setWaiters(d.waiters || []))
-        .catch(() => {});
-    });
-
-    socketRef.current.on("disconnect", () => {
-      setConnected(false);
-    });
-
-    socketRef.current.on("vehicle-update", (vehicle) => {
-      setVehicles((prev) => ({
-        ...prev,
-        [vehicle.id]: vehicle,
-      }));
-
-      markUpdated();
-    });
-
-    socketRef.current.on("waiting-update", (data) => {
-      setWaiters(data.waiters || []);
-    });
-
-    socketRef.current.on("bunching-alert", (alert) => {
-      setAlerts((prev) => [alert, ...prev].slice(0, 20));
-    });
-
-    fetch(`${BACKEND_URL}/vehicles`)
-      .then((r) => r.json())
-      .then((data) => {
-        const map = {};
-
-        data.forEach((v) => {
-          map[v.id || v.vehicle_id] = v;
-        });
-
-        setVehicles(map);
-
-        markUpdated();
-      });
-
-    return () => socketRef.current?.disconnect();
-  }, [markUpdated]);
-
-  const vehicleList = DEMO_MODE ? demo.vehicles : Object.values(vehicles);
-
-  const waitingList = DEMO_MODE ? demo.waiters : waiters;
-
-  const alertList = DEMO_MODE ? demo.alerts : alerts;
+  const waitingList = [];
 
   const topHotspots = [...hotspots]
     .sort((a, b) => b.demand_score - a.demand_score)
@@ -147,8 +78,23 @@ export default function OperatorView({ onBack }) {
           </div>
         </div>
 
-        <ConnectionStatusPill status={DEMO_MODE ? "live" : status} inline />
+        <ConnectionStatusPill status={connected ? "live" : "offline"} inline />
       </div>
+
+      {usingDemo && (
+        <div
+          style={{
+            background: "#FEF3C7",
+            color: "#92400E",
+            padding: 12,
+            borderRadius: 10,
+            marginBottom: 20,
+            fontWeight: 600,
+          }}
+        >
+          Backend unavailable. Running Demo Mode.
+        </div>
+      )}
 
       <KPICards />
 
@@ -164,7 +110,7 @@ export default function OperatorView({ onBack }) {
 
         <div>
           <FleetMap
-            vehicles={vehicleList}
+            vehicles={vehicles}
             waitingCommuters={waitingList}
             onVehicleSelect={setSelectedVehicle}
           />
@@ -190,14 +136,14 @@ export default function OperatorView({ onBack }) {
           <VehicleDetailsPanel vehicle={selectedVehicle} />
 
           <AIRecommendationPanel
-            vehicles={vehicleList}
+            vehicles={vehicles}
             waitingCommuters={waitingList}
           />
 
           <OperationsPanel
-            alerts={alertList}
+            alerts={alerts}
             hotspots={topHotspots}
-            vehicles={vehicleList}
+            vehicles={vehicles}
             waiting={waitingList}
           />
         </div>
@@ -416,11 +362,7 @@ function HotspotRow({ rank, spot }) {
         </div>
       </div>
 
-      <div
-        style={{
-          textAlign: "right",
-        }}
-      >
+      <div style={{ textAlign: "right" }}>
         <strong>{spot.avg_wait_minutes} min</strong>
 
         <div

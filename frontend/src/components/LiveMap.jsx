@@ -1,3 +1,4 @@
+// src/components/map/LiveMap.jsx
 import {
   APIProvider,
   Map,
@@ -5,16 +6,19 @@ import {
   InfoWindow,
 } from "@vis.gl/react-google-maps";
 import { useState } from "react";
-import hotspots from "../data/demandHotspots.json"; // <-- Import the data
+import hotspots from "../data/demandHotspots.json";
+import RoutePolylines from "./RoutePolylines"; // ← ADD THIS
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-export default function LiveMap({ vehicles }) {
+// ← ADD THIS: pass activeRoute from parent if you want to highlight one route
+//   e.g. <LiveMap vehicles={vehicles} activeRoute="Katipunan - Cubao" />
+//   Leave it undefined to show all route corridors at once.
+export default function LiveMap({ vehicles, activeRoute }) {
   const vehicleList = Object.values(vehicles);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
 
-  // Determine center: use first vehicle if exists, otherwise first hotspot, otherwise fallback
   let center = { lat: 14.5547, lng: 121.0244 };
   if (vehicleList.length > 0) {
     center = { lat: vehicleList[0].lat, lng: vehicleList[0].lng };
@@ -26,15 +30,18 @@ export default function LiveMap({ vehicles }) {
     <div className="map-wrapper">
       <APIProvider apiKey={API_KEY}>
         <Map
-          defaultCenter={{ lat: 14.5547, lng: 121.0244 }}
-          defaultZoom={14}
+          defaultCenter={{ lat: 14.6255, lng: 121.0489 }} // ← tightened to QC/Cubao
+          defaultZoom={14} // ← was 14, keep
           center={center}
           zoom={15}
           mapId="smartroute-map"
           style={{ height: "100%", width: "100%" }}
           disableDefaultUI={false}
         >
-          {/* Vehicle Markers */}
+          {/* ↓ ADD THIS — must be inside <Map> */}
+          <RoutePolylines activeRoute={activeRoute} />
+
+          {/* Vehicle Markers — unchanged */}
           {vehicleList.map((v) => (
             <AdvancedMarker
               key={v.vehicle_id}
@@ -45,9 +52,8 @@ export default function LiveMap({ vehicles }) {
             </AdvancedMarker>
           ))}
 
-          {/* Demand Hotspot Markers */}
+          {/* Demand Hotspot Markers — unchanged */}
           {hotspots.map((spot, idx) => {
-            // Scale marker size by demand_score (bigger score => bigger circle)
             const radius = Math.max(spot.demand_score * 1.5, 8);
             return (
               <AdvancedMarker
@@ -77,7 +83,7 @@ export default function LiveMap({ vehicles }) {
             );
           })}
 
-          {/* Vehicle Info Window */}
+          {/* Vehicle Info Window — unchanged */}
           {selectedVehicle && (
             <InfoWindow
               position={{ lat: selectedVehicle.lat, lng: selectedVehicle.lng }}
@@ -92,7 +98,7 @@ export default function LiveMap({ vehicles }) {
             </InfoWindow>
           )}
 
-          {/* Hotspot Info Window */}
+          {/* Hotspot Info Window — unchanged */}
           {selectedHotspot && (
             <InfoWindow
               position={{

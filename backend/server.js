@@ -1,54 +1,190 @@
 // server.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const db = require('./firebase');
-const { calculateEtaToStop, calculateEtasForAllStops } = require('./eta');
-const { startBunchingMonitor, activeAlerts } = require('./bunching');
+
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const supabase = require("./supabase");
+const { calculateEtaToStop, calculateEtasForAllStops } = require("./eta");
+const { startBunchingMonitor, activeAlerts } = require("./bunching");
 
 const app = express();
+const server = http.createServer(app);
+
+// -------------------------------
+// Socket.IO
+// -------------------------------
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Export io so subscriber.js can use it later
+module.exports.io = io;
+
+io.on("connection", (socket) => {
+  console.log("🟢 Client connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Client disconnected:", socket.id);
+  });
+});
+
+// -------------------------------
+
 app.use(cors());
 app.use(express.json());
 
-// GET /alerts — currently active bunching alerts
-app.get('/alerts', (req, res) => {
+/*
+|--------------------------------------------------------------------------
+| GET /alerts
+|--------------------------------------------------------------------------
+*/
+
+app.get("/alerts", (req, res) => {
   res.json(Object.values(activeAlerts));
 });
 
-// GET /vehicles — list active vehicles with latest position
-app.get('/vehicles', async (req, res) => {
-  const snapshot = await db.collection('vehicles').get();
-  const vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  res.json(vehicles);
+/*
+|--------------------------------------------------------------------------
+| GET /vehicles
+|--------------------------------------------------------------------------
+*/
+
+app.get("/vehicles", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("vehicles").select("*");
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 });
 
-// GET /vehicles/:id/history?from=&to= — historical pings
-app.get('/vehicles/:id/history', async (req, res) => {
-  const { id } = req.params;
-  const { from, to } = req.query;
+/*
+|--------------------------------------------------------------------------
+| GET /vehicles/:id
+|--------------------------------------------------------------------------
+*/
 
-  let query = db.collection('vehicles').doc(id).collection('history');
+app.get("/vehicles/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("vehicles")
+      .select("*")
+      .eq("id", req.params.id)
+      .single();
 
-  if (from) query = query.where('timestamp', '>=', Number(from));
-  if (to) query = query.where('timestamp', '<=', Number(to));
+    if (error) {
+      return res.status(404).json({
+        error: "Vehicle not found",
+      });
+    }
 
-  const snapshot = await query.orderBy('timestamp').get();
-  const history = snapshot.docs.map(doc => doc.data());
-  res.json(history);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 });
 
-// GET /vehicles/:id/eta/:stopId — ETA to a specific stop
-app.get('/vehicles/:id/eta/:stopId', async (req, res) => {
-  const result = await calculateEtaToStop(req.params.id, req.params.stopId);
-  res.json(result);
+/*
+|--------------------------------------------------------------------------
+| GET /vehicles/:id/history
+|--------------------------------------------------------------------------
+*/
+
+app.get("/vehicles/:id/history", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { from, to } = req.query;
+
+    let query = supabase
+      .from("history")
+      .select("*")
+      .eq("vehicle_id", id)
+      .order("timestamp", {
+        ascending: true,
+      });
+
+    if (from) query = query.gte("timestamp", Number(from));
+    if (to) query = query.lte("timestamp", Number(to));
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 });
 
-// GET /vehicles/:id/etas — ETA to all stops on the route
-app.get('/vehicles/:id/etas', async (req, res) => {
-  const result = await calculateEtasForAllStops(req.params.id);
-  res.json(result);
+/*
+|--------------------------------------------------------------------------
+| GET /vehicles/:id/eta/:stopId
+|--------------------------------------------------------------------------
+*/
+
+app.get("/vehicles/:id/eta/:stopId", async (req, res) => {
+  try {
+    const result = await calculateEtaToStop(req.params.id, req.params.stopId);
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 });
 
-const PORT = 3000;
-startBunchingMonitor(30000); // checks every 30 seconds
-app.listen(PORT, () => console.log(`API running on port ${PORT}`));
+/*
+|--------------------------------------------------------------------------
+| GET /vehicles/:id/etas
+|--------------------------------------------------------------------------
+*/
+
+app.get("/vehicles/:id/etas", async (req, res) => {
+  try {
+    const result = await calculateEtasForAllStops(req.params.id);
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Start Background Services
+|--------------------------------------------------------------------------
+*/
+
+startBunchingMonitor(30000);
+
+/*
+|--------------------------------------------------------------------------
+| Start Server
+|--------------------------------------------------------------------------
+*/
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`🚀 API + Socket.IO running on port ${PORT}`);
+});
