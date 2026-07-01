@@ -1,7 +1,5 @@
 // src/pages/LandingPage.jsx
-
 import { useEffect, useState } from "react";
-
 import Navbar from "../components/landing/Navbar";
 import Hero from "../components/layout/Hero";
 import Stats from "../components/landing/Stats";
@@ -9,10 +7,16 @@ import Features from "../components/landing/Features";
 
 export default function LandingPage({ setActiveView }) {
   const [loaded, setLoaded] = useState(false);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     setLoaded(true);
   }, []);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   return (
     <div
@@ -24,9 +28,31 @@ export default function LandingPage({ setActiveView }) {
         position: "relative",
       }}
     >
-      {/* ---------------- BACKGROUND ---------------- */}
+      {/* Toast */}
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            background: "#0F172A",
+            color: "white",
+            padding: "12px 24px",
+            borderRadius: 14,
+            fontSize: 14,
+            fontWeight: 500,
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+            animation: "fadeInDown 0.3s ease",
+          }}
+        >
+          🚧 {toast}
+          <style>{`@keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+        </div>
+      )}
 
-      {/* Top Glow */}
+      {/* Background glows */}
       <div
         style={{
           position: "fixed",
@@ -42,8 +68,6 @@ export default function LandingPage({ setActiveView }) {
           pointerEvents: "none",
         }}
       />
-
-      {/* Bottom Glow */}
       <div
         style={{
           position: "fixed",
@@ -59,10 +83,7 @@ export default function LandingPage({ setActiveView }) {
           pointerEvents: "none",
         }}
       />
-
-      {/* Floating Circle */}
       <FloatingCircle size={120} top="18%" left="6%" delay={0} opacity={0.1} />
-
       <FloatingCircle
         size={70}
         top="58%"
@@ -70,7 +91,6 @@ export default function LandingPage({ setActiveView }) {
         delay={2}
         opacity={0.14}
       />
-
       <FloatingCircle
         size={48}
         bottom="18%"
@@ -79,8 +99,7 @@ export default function LandingPage({ setActiveView }) {
         opacity={0.12}
       />
 
-      {/* ---------------- NAVBAR ---------------- */}
-
+      {/* Navbar */}
       <div
         style={{
           position: "sticky",
@@ -95,17 +114,8 @@ export default function LandingPage({ setActiveView }) {
         <Navbar />
       </div>
 
-      {/* ---------------- PAGE ---------------- */}
-
-      <main
-        style={{
-          position: "relative",
-          zIndex: 2,
-          width: "100%",
-        }}
-      >
+      <main style={{ position: "relative", zIndex: 2, width: "100%" }}>
         {/* Hero */}
-
         <section
           style={{
             maxWidth: 1550,
@@ -116,47 +126,48 @@ export default function LandingPage({ setActiveView }) {
             transition: "1s",
           }}
         >
-          <Hero setActiveView={setActiveView} />
+          <Hero
+            setActiveView={setActiveView}
+            onDemoClick={() => showToast("Feature coming in a future update")}
+          />
         </section>
 
-        {/* LIVE STATUS */}
-
-        <section
-          style={{
-            maxWidth: 1450,
-            margin: "0 auto",
-            padding: "0 8%",
-          }}
-        >
+        {/* Glass Banner */}
+        <section style={{ maxWidth: 1450, margin: "0 auto", padding: "0 8%" }}>
           <GlassBanner />
         </section>
 
-        {/* STATS */}
-
+        {/* Stats */}
         <section
-          style={{
-            maxWidth: 1500,
-            margin: "50px auto",
-            padding: "0 8%",
-          }}
+          style={{ maxWidth: 1500, margin: "50px auto", padding: "0 8%" }}
         >
           <Stats />
         </section>
 
-        {/* FEATURES */}
-
+        {/* Features */}
         <section
-          style={{
-            maxWidth: 1500,
-            margin: "70px auto 100px",
-            padding: "0 8%",
-          }}
+          style={{ maxWidth: 1500, margin: "70px auto", padding: "0 8%" }}
         >
           <Features />
         </section>
 
-        {/* FOOTER */}
+        {/* How It Works */}
+        <section
+          style={{ maxWidth: 1100, margin: "0 auto 80px", padding: "0 8%" }}
+        >
+          <HowItWorks />
+        </section>
 
+        {/* About Us */}
+        <section
+          style={{ maxWidth: 1100, margin: "0 auto 100px", padding: "0 8%" }}
+        >
+          <AboutUs
+            onDemoClick={() => showToast("Feature coming in a future update")}
+          />
+        </section>
+
+        {/* Footer */}
         <footer
           style={{
             marginTop: 60,
@@ -176,16 +187,9 @@ export default function LandingPage({ setActiveView }) {
             }}
           >
             <div>
-              <div
-                style={{
-                  fontWeight: 800,
-                  fontSize: 28,
-                  color: "#0F172A",
-                }}
-              >
+              <div style={{ fontWeight: 800, fontSize: 28, color: "#0F172A" }}>
                 🚌 BUSINA
               </div>
-
               <div
                 style={{
                   marginTop: 12,
@@ -194,41 +198,57 @@ export default function LandingPage({ setActiveView }) {
                   maxWidth: 420,
                 }}
               >
-                Intelligent Public Transportation Monitoring & Passenger
+                Intelligent Public Transportation Monitoring &amp; Passenger
                 Assistance System powered by real-time GPS, AI analytics and
                 live fleet management.
               </div>
+              <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+                <a
+                  href="https://github.com/ALT-F4-sparkfest"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: 10,
+                    background: "#F1F5F9",
+                    color: "#0F172A",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                    fontSize: 13,
+                  }}
+                >
+                  ⭐ Source Code
+                </a>
+                <button
+                  onClick={() => showToast("Feature coming in a future update")}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: 10,
+                    background: "#2563EB",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: 13,
+                  }}
+                >
+                  🚀 Live Demo
+                </button>
+              </div>
             </div>
-
-            <div
-              style={{
-                textAlign: "right",
-                color: "#64748B",
-              }}
-            >
+            <div style={{ textAlign: "right", color: "#64748B" }}>
               <div
-                style={{
-                  fontWeight: 700,
-                  color: "#0F172A",
-                  marginBottom: 10,
-                }}
+                style={{ fontWeight: 700, color: "#0F172A", marginBottom: 10 }}
               >
                 BUSINA Platform
               </div>
-
               <div>Real-time Fleet Monitoring</div>
               <div>AI Decision Support</div>
               <div>Passenger ETA Prediction</div>
-
-              <div
-                style={{
-                  marginTop: 22,
-                  fontSize: 13,
-                  opacity: 0.7,
-                }}
-              >
-                © 2026 BUSINA
+              <div style={{ marginTop: 22, fontSize: 13, opacity: 0.7 }}>
+                © 2026 BUSINA by ALT-F4. All rights reserved.
               </div>
+              <div style={{ fontSize: 13, opacity: 0.7 }}></div>
             </div>
           </div>
         </footer>
@@ -237,8 +257,249 @@ export default function LandingPage({ setActiveView }) {
   );
 }
 
-/* ---------------------------------------------------------------- */
+/* ── How It Works ─────────────────────────────────────────────────────────── */
+const HOW_STEPS = [
+  {
+    icon: "📡",
+    title: "GPS Data Captured",
+    body: "Each jeepney broadcasts its real-time GPS position via MQTT every few seconds.",
+  },
+  {
+    icon: "⚙️",
+    title: "AI Processes the Feed",
+    body: "Our backend normalises position data, detects bunching & delays, and calculates ETAs.",
+  },
+  {
+    icon: "📱",
+    title: "Commuters Get Updates",
+    body: "Riders see live vehicle positions and accurate arrival times on their phone.",
+  },
+  {
+    icon: "📊",
+    title: "Operators Stay in Control",
+    body: "Fleet managers get a live dashboard with alerts, demand hotspots, and dispatch recommendations.",
+  },
+];
 
+function HowItWorks() {
+  return (
+    <div>
+      <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <div
+          style={{
+            display: "inline-block",
+            background: "#EFF6FF",
+            color: "#2563EB",
+            padding: "6px 18px",
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 600,
+            marginBottom: 16,
+          }}
+        >
+          HOW IT WORKS
+        </div>
+        <h2
+          style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", margin: 0 }}
+        >
+          From GPS ping to your screen in seconds
+        </h2>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+          gap: 24,
+        }}
+      >
+        {HOW_STEPS.map((step, i) => (
+          <div
+            key={i}
+            style={{
+              background: "white",
+              borderRadius: 20,
+              padding: 28,
+              border: "1px solid #E2E8F0",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "#EFF6FF",
+                color: "#2563EB",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 800,
+                fontSize: 13,
+              }}
+            >
+              {i + 1}
+            </div>
+            <div style={{ fontSize: 36, marginBottom: 14 }}>{step.icon}</div>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 16,
+                color: "#0F172A",
+                marginBottom: 8,
+              }}
+            >
+              {step.title}
+            </div>
+            <div style={{ fontSize: 14, color: "#64748B", lineHeight: 1.6 }}>
+              {step.body}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── About Us ─────────────────────────────────────────────────────────────── */
+function AboutUs({ onDemoClick }) {
+  return (
+    <div
+      style={{
+        background: "white",
+        borderRadius: 28,
+        padding: "52px 48px",
+        border: "1px solid #E2E8F0",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+        display: "flex",
+        gap: 48,
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ flex: "1 1 320px" }}>
+        <div
+          style={{
+            display: "inline-block",
+            background: "#EFF6FF",
+            color: "#2563EB",
+            padding: "6px 18px",
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 600,
+            marginBottom: 20,
+          }}
+        >
+          ABOUT US
+        </div>
+        <h2
+          style={{
+            fontSize: 30,
+            fontWeight: 800,
+            color: "#0F172A",
+            margin: "0 0 18px",
+          }}
+        >
+          Built for Filipino commuters, by Filipino students
+        </h2>
+        <p
+          style={{
+            color: "#64748B",
+            lineHeight: 1.8,
+            margin: "0 0 16px",
+            fontSize: 15,
+          }}
+        >
+          BUSINA started as a hackathon project with one goal: make jeepney
+          routes predictable. We combined real-time GPS tracking, Socket.IO live
+          updates, and AI-assisted dispatch to give both commuters and operators
+          the visibility they've never had.
+        </p>
+        <p
+          style={{
+            color: "#64748B",
+            lineHeight: 1.8,
+            margin: "0 0 28px",
+            fontSize: 15,
+          }}
+        >
+          We believe public infrastructure data should be public.
+        </p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <a
+            href="https://github.com/ALT-F4-sparkfest"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "10px 22px",
+              borderRadius: 12,
+              background: "#0F172A",
+              color: "white",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: 14,
+            }}
+          >
+            ⭐ View on GitHub
+          </a>
+          <button
+            onClick={onDemoClick}
+            style={{
+              padding: "10px 22px",
+              borderRadius: 12,
+              background: "#EFF6FF",
+              color: "#2563EB",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: 600,
+              fontSize: 14,
+            }}
+          >
+            🚀 Try Live Demo
+          </button>
+        </div>
+      </div>
+      <div
+        style={{
+          flex: "1 1 240px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 16,
+        }}
+      >
+        {[
+          { label: "Team Members", value: "4" },
+          { label: "Routes Tracked", value: "4+" },
+          { label: "Vehicles Live", value: "8" },
+          { label: "Built in", value: "72hrs" },
+        ].map((s) => (
+          <div
+            key={s.label}
+            style={{
+              background: "#F8FAFC",
+              borderRadius: 16,
+              padding: 20,
+              textAlign: "center",
+              border: "1px solid #E2E8F0",
+            }}
+          >
+            <div style={{ fontSize: 28, fontWeight: 800, color: "#2563EB" }}>
+              {s.value}
+            </div>
+            <div style={{ fontSize: 13, color: "#64748B", marginTop: 4 }}>
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Glass Banner ─────────────────────────────────────────────────────────── */
 function GlassBanner() {
   return (
     <div
@@ -257,11 +518,8 @@ function GlassBanner() {
       }}
     >
       <Metric title="Fleet Status" value="LIVE" color="#22C55E" />
-
       <Metric title="GPS Updates" value="Real-Time" color="#2563EB" />
-
       <Metric title="Analytics" value="AI Enabled" color="#8B5CF6" />
-
       <Metric title="Platform" value="Online" color="#F59E0B" />
     </div>
   );
@@ -270,23 +528,10 @@ function GlassBanner() {
 function Metric({ title, value, color }) {
   return (
     <div>
-      <div
-        style={{
-          color: "#64748B",
-          fontSize: 13,
-          marginBottom: 8,
-        }}
-      >
+      <div style={{ color: "#64748B", fontSize: 13, marginBottom: 8 }}>
         {title}
       </div>
-
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-        }}
-      >
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <div
           style={{
             width: 12,
@@ -297,14 +542,7 @@ function Metric({ title, value, color }) {
             animation: "pulse 2s infinite",
           }}
         />
-
-        <div
-          style={{
-            fontWeight: 800,
-            fontSize: 20,
-            color: "#0F172A",
-          }}
-        >
+        <div style={{ fontWeight: 800, fontSize: 20, color: "#0F172A" }}>
           {value}
         </div>
       </div>
@@ -333,42 +571,9 @@ function FloatingCircle({ size, top, left, right, bottom, delay, opacity }) {
           pointerEvents: "none",
         }}
       />
-
       <style>{`
-        @keyframes float{
-
-          0%{
-            transform:translateY(0px);
-          }
-
-          50%{
-            transform:translateY(-20px);
-          }
-
-          100%{
-            transform:translateY(0px);
-          }
-
-        }
-
-        @keyframes pulse{
-
-          0%{
-            transform:scale(1);
-            opacity:.7;
-          }
-
-          50%{
-            transform:scale(1.35);
-            opacity:1;
-          }
-
-          100%{
-            transform:scale(1);
-            opacity:.7;
-          }
-
-        }
+        @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-20px)}100%{transform:translateY(0)}}
+        @keyframes pulse{0%{transform:scale(1);opacity:.7}50%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:.7}}
       `}</style>
     </>
   );

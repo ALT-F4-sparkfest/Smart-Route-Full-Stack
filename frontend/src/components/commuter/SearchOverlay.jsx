@@ -19,7 +19,6 @@ export default function SearchOverlay({
       }}
     >
       {/* Status Badge - now dynamic */}
-
       <div
         style={{
           display: "inline-flex",
@@ -40,9 +39,7 @@ export default function SearchOverlay({
         <Sparkles size={14} />
         {connected ? "LIVE" : "OFFLINE"}
       </div>
-
       {/* Search - unchanged */}
-
       <div
         style={{
           display: "flex",
@@ -93,9 +90,7 @@ export default function SearchOverlay({
           {loading ? "..." : <MapPin size={20} />}
         </button>
       </div>
-
-      {/* Route Chips - unchanged */}
-
+     {/* Route Chips - unchanged */}
       <div
         style={{
           display: "flex",
@@ -104,7 +99,7 @@ export default function SearchOverlay({
           overflowX: "auto",
         }}
       >
-        {["Cubao", "Katipunan", "Makati", "SM North", "UP Diliman"].map(
+        {["Cubao", "Makati", "Marikina", "Pasig", "San Juan", "Divisoria"].map(
           (route) => (
             <button
               key={route}

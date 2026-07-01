@@ -30,10 +30,15 @@ global.io = io;
 io.on("connection", (socket) => {
   console.log(`🔌 Client connected: ${socket.id}`);
 
-  // Send initial snapshot from Supabase
+  // Send initial snapshot from Supabase (with error handling)
   (async () => {
-    const { data } = await supabase.from("vehicles").select("*");
-    if (data) socket.emit("vehicle_snapshot", data);
+    try {
+      const { data, error } = await supabase.from("vehicles").select("*");
+      if (error) throw error;
+      if (data?.length) socket.emit("vehicle_snapshot", data);
+    } catch (err) {
+      console.warn("⚠️ Snapshot skipped (Supabase unavailable):", err.message);
+    }
   })();
 
   socket.on("subscribe-vehicle", (vehicleId) => {
@@ -124,7 +129,6 @@ app.post("/commuter/waiting", (req, res) => {
   res.json({ status: "ok" });
 });
 
-const PORT = process.env.PORT || 3000;
 // Serve route geofence data for frontend
 app.get("/routes/:routeId/geofence", (req, res) => {
   const { routeId } = req.params;
@@ -139,6 +143,21 @@ app.get("/routes/:routeId/geofence", (req, res) => {
     res.status(500).json({ error: "Failed to load geofence" });
   }
 });
+
+// ─── PATCH 2: Alerts endpoint ───────────────────────────────────────────
+// In-memory alert log — subscriber.js pushes here when anomalies detected
+const alertLog = [];
+global.pushAlert = (alert) => {
+  alertLog.unshift({ ...alert, timestamp: new Date().toISOString() });
+  if (alertLog.length > 50) alertLog.pop();
+  if (global.io) global.io.emit("alert", alert);
+};
+
+app.get("/alerts", (req, res) => {
+  res.json(alertLog);
+});
+
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`🚀 API running on port ${PORT}`);
   console.log(`🔌 Socket.IO enabled`);

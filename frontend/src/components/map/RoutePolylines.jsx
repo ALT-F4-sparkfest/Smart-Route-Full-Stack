@@ -46,42 +46,47 @@ export default function RoutePolylines({ activeRoute = null }) {
   const polylinesRef = useRef([]);
 
   useEffect(() => {
-    // Wait until both the map instance AND window.google are ready
-    if (!map || !window.google?.maps?.Polyline) return;
-
-    // Clear any previously drawn lines
+    // Clear any existing polylines when unmounting or when route changes
     polylinesRef.current.forEach((p) => p.setMap(null));
     polylinesRef.current = [];
 
-    const entries = activeRoute
-      ? Object.entries(ROUTE_PATHS).filter(([name]) => name === activeRoute)
-      : Object.entries(ROUTE_PATHS);
+    // Only draw if we have a valid, non‑"all" route string
+    if (
+      !activeRoute ||
+      typeof activeRoute !== "string" ||
+      activeRoute === "all"
+    ) {
+      return;
+    }
 
-    entries.forEach(([routeName, path]) => {
-      const color = ROUTE_STYLES[routeName]?.strokeColor ?? "#64748b";
+    if (!map || !window.google?.maps?.Polyline) return;
 
-      // Glow layer
-      const glow = new window.google.maps.Polyline({
-        path,
-        strokeColor: color,
-        strokeOpacity: 0.15,
-        strokeWeight: 14,
-        geodesic: true,
-        map,
-      });
+    const path = ROUTE_PATHS[activeRoute];
+    if (!path) return;
 
-      // Solid line
-      const line = new window.google.maps.Polyline({
-        path,
-        strokeColor: color,
-        strokeOpacity: 0.8,
-        strokeWeight: 5,
-        geodesic: true,
-        map,
-      });
+    const color = ROUTE_STYLES[activeRoute]?.strokeColor ?? "#64748b";
 
-      polylinesRef.current.push(glow, line);
+    // Glow layer
+    const glow = new window.google.maps.Polyline({
+      path,
+      strokeColor: color,
+      strokeOpacity: 0.15,
+      strokeWeight: 14,
+      geodesic: true,
+      map,
     });
+
+    // Solid line
+    const line = new window.google.maps.Polyline({
+      path,
+      strokeColor: color,
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      geodesic: true,
+      map,
+    });
+
+    polylinesRef.current.push(glow, line);
 
     return () => {
       polylinesRef.current.forEach((p) => p.setMap(null));

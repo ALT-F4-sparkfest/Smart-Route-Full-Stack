@@ -83,7 +83,7 @@ export default function Navbar() {
 
         <Badge text="AI Dispatch" color="#7C3AED" />
 
-        <Badge text="Demo Ready" color="#22C55E" />
+        <Badge text="Real-Time ETA" color="#22C55E" />
       </div>
 
       {/* RIGHT */}

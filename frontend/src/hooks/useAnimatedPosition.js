@@ -1,40 +1,68 @@
+// src/hooks/useAnimatedPosition.js
+
 import { useEffect, useRef, useState } from "react";
 
 export default function useAnimatedPosition(target) {
   const [position, setPosition] = useState(target);
-
-  const frame = useRef();
+  const frameRef = useRef(null);
+  const prevTarget = useRef(target);
 
   useEffect(() => {
-    if (!target) return;
+    if (!target) {
+      setPosition(null);
+      return;
+    }
 
-    cancelAnimationFrame(frame.current);
+    // Skip animation if coordinates haven't changed
+    if (
+      prevTarget.current &&
+      prevTarget.current.lat === target.lat &&
+      prevTarget.current.lng === target.lng
+    ) {
+      // Keep the same position – no update needed
+      return;
+    }
 
-    const start = performance.now();
+    // Cancel any ongoing animation
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+    }
 
-    const duration = 800;
-
+    const startTime = performance.now();
+    const duration = 400; // ← reduced from 800 → 400ms
     const from = position || target;
 
-    function animate(now) {
-      const t = Math.min((now - start) / duration, 1);
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
 
-      const eased = 1 - Math.pow(1 - t, 3);
+      // Ease-out for smoother stop
+      const eased = 1 - Math.pow(1 - progress, 3);
 
       setPosition({
         lat: from.lat + (target.lat - from.lat) * eased,
         lng: from.lng + (target.lng - from.lng) * eased,
       });
 
-      if (t < 1) {
-        frame.current = requestAnimationFrame(animate);
+      if (progress < 1) {
+        frameRef.current = requestAnimationFrame(animate);
+      } else {
+        // Snap to exact target at the end
+        setPosition(target);
       }
-    }
+    };
 
-    frame.current = requestAnimationFrame(animate);
+    frameRef.current = requestAnimationFrame(animate);
 
-    return () => cancelAnimationFrame(frame.current);
-  }, [target]);
+    // Update previous target reference
+    prevTarget.current = target;
+
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, [target?.lat, target?.lng, target]); // ← more precise dependencies
 
   return position || target;
 }

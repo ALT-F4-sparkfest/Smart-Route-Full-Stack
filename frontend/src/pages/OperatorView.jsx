@@ -1,10 +1,11 @@
+// src/pages/OperatorView.jsx
+
 import React, { useState, useEffect } from "react";
 import { AlertCircle, Bus, MapPin, Clock } from "lucide-react";
 import useLiveVehicles from "../hooks/useLiveVehicles";
 import LiveMap from "../components/map/LiveMap";
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
 
-// Import dashboard components
 import KPICards from "../components/KPICards";
 import TravelTimeChart from "../components/TravelTimeChart";
 import AIRecommendationPanel from "../components/operator/AIRecommendationPanel";
@@ -13,42 +14,38 @@ import hotspots from "../data/demandHotspots.json";
 
 export default function OperatorView({ onBack }) {
   const live = useLiveVehicles();
-  const [alerts, setAlerts] = useState([]);
-  const [waitingList, setWaitingList] = useState([]); // Moved out of hardcoded state
+  // Alerts now come from the hook directly — no separate fetch needed
+  const alerts = live.alerts ?? [];
+  const [waitingList, setWaitingList] = useState([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [filterRoute, setFilterRoute] = useState("all");
 
-  // Fetch live alerts and commuter queues from active endpoints
+  // ✅ Listen for waiting updates from CommuterView via Socket.IO
   useEffect(() => {
-    const fetchOperationalData = async () => {
-      try {
-        // Fetch Alerts
-        const alertsRes = await fetch("http://localhost:3000/alerts");
-        if (alertsRes.ok) {
-          const alertsData = await alertsRes.json();
-          setAlerts(alertsData);
-        }
+    if (!live.socket) return;
 
-        // Fetch Live Commuter Waiting List Demand Data
-        const demandRes = await fetch("http://localhost:3000/live-demand");
-        if (demandRes.ok) {
-          const demandData = await demandRes.json();
-          setWaitingList(demandData);
-        }
-      } catch (err) {
-        console.error("Operational data stream error:", err);
-      }
+    const handleWaitingUpdate = (data) => {
+      setWaitingList((prev) => {
+        const newEntry = {
+          ...data,
+          id: Date.now() + Math.random(),
+          timestamp: new Date().toISOString(),
+        };
+        return [newEntry, ...prev].slice(0, 20);
+      });
     };
 
-    fetchOperationalData();
-    const interval = setInterval(fetchOperationalData, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    live.socket.on("waiting-update", handleWaitingUpdate);
+    return () => {
+      live.socket.off("waiting-update", handleWaitingUpdate);
+    };
+  }, [live.socket]);
 
-  // Filter out invalid coordinates from live websocket/polling hook
+  // Filter out invalid coordinates (already done, but keep)
   const vehicleList = Array.isArray(live.vehicles)
     ? live.vehicles.filter(
         (v) =>
+          v &&
           typeof v.lat === "number" &&
           typeof v.lng === "number" &&
           isFinite(v.lat) &&
@@ -65,7 +62,7 @@ export default function OperatorView({ onBack }) {
       ? vehicleList
       : vehicleList.filter((v) => v.route_id === filterRoute);
 
-  // Auto-select first vehicle dynamically if nothing is active
+  // Auto-select first vehicle
   useEffect(() => {
     if (filteredVehicles.length > 0 && !selectedVehicleId) {
       setSelectedVehicleId(filteredVehicles[0].id);
@@ -76,7 +73,6 @@ export default function OperatorView({ onBack }) {
     (v) => v.id === selectedVehicleId,
   );
 
-  // Status helper dynamically processing incoming live velocity telemetry
   const getStatus = (speed) => {
     if (typeof speed !== "number" || speed < 1)
       return { label: "Stopped", color: "#EF4444", icon: "●" };
@@ -84,7 +80,6 @@ export default function OperatorView({ onBack }) {
     return { label: "Moving", color: "#22C55E", icon: "●" };
   };
 
-  // Top hotspots processing
   const topHotspots = [...hotspots]
     .sort((a, b) => b.demand_score - a.demand_score)
     .slice(0, 5);
@@ -98,7 +93,7 @@ export default function OperatorView({ onBack }) {
         background: "#F1F5F9",
       }}
     >
-      {/* Header – identical to CommuterView */}
+      {/* Header */}
       <header
         style={{
           display: "flex",
@@ -165,12 +160,10 @@ export default function OperatorView({ onBack }) {
         </div>
       </header>
 
-      {/* KPI Cards – full width */}
       <div style={{ padding: "16px 32px", flexShrink: 0 }}>
         <KPICards vehicles={filteredVehicles} />
       </div>
 
-      {/* Main content: map + sidebar */}
       <div
         style={{
           display: "flex",
@@ -180,7 +173,6 @@ export default function OperatorView({ onBack }) {
           gap: 24,
         }}
       >
-        {/* Left column: Map + bottom charts */}
         <div
           style={{
             flex: "0 0 60%",
@@ -189,7 +181,6 @@ export default function OperatorView({ onBack }) {
             gap: 24,
           }}
         >
-          {/* Map */}
           <div
             style={{
               flex: 1,
@@ -214,7 +205,6 @@ export default function OperatorView({ onBack }) {
             />
           </div>
 
-          {/* Bottom row: TravelTimeChart + AIRecommendationPanel */}
           <div style={{ display: "flex", gap: 24 }}>
             <div style={{ flex: 1 }}>
               <TravelTimeChart />
@@ -228,7 +218,6 @@ export default function OperatorView({ onBack }) {
           </div>
         </div>
 
-        {/* Right column: Sidebar */}
         <div
           style={{
             flex: 1,
@@ -238,7 +227,6 @@ export default function OperatorView({ onBack }) {
             overflowY: "auto",
           }}
         >
-          {/* Vehicle Details Panel (selected vehicle) */}
           <VehicleDetailsPanel
             vehicle={selectedVehicle}
             status={selectedVehicle ? getStatus(selectedVehicle.speed) : null}
@@ -516,7 +504,6 @@ export default function OperatorView({ onBack }) {
             </div>
           </section>
 
-          {/* Operations Panel (hotspots & calculated dynamic AI summary) */}
           <OperationsPanel
             alerts={alerts}
             hotspots={topHotspots}
@@ -529,25 +516,25 @@ export default function OperatorView({ onBack }) {
   );
 }
 
-// ─── Operations Panel Component ──────────────────────────────────────────────
-
 function OperationsPanel({
   alerts = [],
   hotspots = [],
   vehicles = [],
   waiting = [],
 }) {
-  // Production Dynamic AI summary builder (No more hardcoded demo text!)
   const criticalCount = alerts.filter((a) => a.severity === "critical").length;
 
   const getDynamicAISummary = () => {
     if (criticalCount > 0) {
-      return `Attention required: There are ${criticalCount} critical operational alerts active in the system. Fleet adjustments or driver contact recommended immediately.`;
+      return `⚠️ Attention required: There are ${criticalCount} critical operational alerts active. Fleet adjustments or driver contact recommended immediately.`;
     }
     if (waiting.length > 20) {
-      return `High Commuter Congestion: Commuter waiting lists are showing backlogs across popular stops. Consider injecting unassigned vehicles into active standby loops.`;
+      return `🚏 High Commuter Congestion: ${waiting.length} passengers waiting across popular stops. Consider injecting unassigned vehicles into active standby loops.`;
     }
-    return `Fleet is operating efficiently across all ${vehicles.length} active units tracked. Transit pacing matches demand thresholds near the highest ranked hotspots.`;
+    if (vehicles.length === 0) {
+      return `📡 No vehicles currently active. Please check the backend connection or replay simulator.`;
+    }
+    return `✅ Fleet is operating efficiently across all ${vehicles.length} active units tracked. Transit pacing matches demand thresholds near the highest-ranked hotspots.`;
   };
 
   return (
