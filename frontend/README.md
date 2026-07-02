@@ -411,7 +411,3 @@ Future development of the frontend includes:
 # 15. Conclusion
 
 The BUSINA frontend provides a responsive, real-time visualization platform that bridges commuters and transport operators through a unified web interface. By integrating Google Maps, Socket.IO, and React, the application delivers live fleet monitoring, ETA estimation, operational analytics, and intelligent decision support. The current implementation serves as a production-ready MVP while providing a scalable architecture for future enhancements such as predictive analytics, authentication, and advanced fleet optimization.
-
----
-
-This format is much closer to what you'd see in a **software engineering technical manual** or **capstone documentation**, making it suitable for GitHub, academic submissions, and hackathon judging.
