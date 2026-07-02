@@ -6,8 +6,9 @@
   "scripts": {
     "server": "node server.js",
     "simulator": "node simulator.js",
-    "start": "concurrently \"npm run server\" \"npm run simulator\"",
-    "dev": "concurrently \"npm run server\" \"npm run simulator\"",
+    "replay": "node replaySImulator.js",
+    "start": "concurrently \"npm run server\" \"npm run replay\"",
+    "dev": "concurrently \"npm run server\" \"npm run replay\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
