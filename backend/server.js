@@ -18,7 +18,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
-      "https://smart-route-full-stack.vercel.app",
+      "https://busina-full-stack.vercel.app",
     ],
     methods: ["GET", "POST"],
   },
