@@ -162,42 +162,6 @@ Supabase Database
 
 ---
 
-# 📂 Repository Structure
-
-```
-BUSINA/
-
-│
-├── backend/
-│
-│   ├── routes/
-│   ├── simulator/
-│   ├── subscriber.js
-│   ├── replaySimulator.js
-│   ├── server.js
-│   ├── eta.js
-│   ├── geofence.js
-│   ├── supabase.js
-│   └── package.json
-│
-├── frontend/
-│
-│   ├── src/
-│   │
-│   ├── components/
-│   ├── hooks/
-│   ├── pages/
-│   ├── data/
-│   ├── App.jsx
-│   └── main.jsx
-│
-├── README.md
-│
-└── .gitignore
-```
-
----
-
 # 🌐 Frontend Pages
 
 ## Landing Page
@@ -530,25 +494,6 @@ Overall
 - MQTT credentials use least-privilege accounts.
 - Supabase credentials remain server-side.
 - Socket.IO only exposes operational data.
-
----
-
-# 👨‍💻 Development Team
-
-**BUSINA**
-
-Bachelor of Science in Computer Science
-
-Capstone Project
-
-Academic Year 2025–2026
-
----
-
-# 📜 License
-
-This project is intended for educational and academic purposes only.
-
 ---
 
 # 🏆 Project Highlights
