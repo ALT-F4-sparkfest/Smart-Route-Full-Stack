@@ -4,12 +4,9 @@ import Button from "../ui/Button";
 export default function Hero({ setActiveView }) {
   return (
     <section
+      className="hero-grid"
       style={{
         minHeight: "90vh",
-        display: "grid",
-        gridTemplateColumns: "1.1fr 1fr",
-        alignItems: "center",
-        gap: 70,
         padding: "70px 8%",
         background:
           "linear-gradient(135deg,#EEF6FF 0%,#FFFFFF 45%,#DCEBFF 100%)",
@@ -35,30 +32,9 @@ export default function Hero({ setActiveView }) {
           Smart Public Transport Intelligence
         </div>
 
-        <h1
-          style={{
-            fontSize: 84,
-            lineHeight: 1,
-            margin: 0,
-            fontWeight: 900,
-            color: "#0F172A",
-            letterSpacing: "-2px",
-          }}
-        >
-          BUSINA
-        </h1>
+        <h1 className="hero-h1">BUSINA</h1>
 
-        <h2
-          style={{
-            marginTop: 14,
-            marginBottom: 28,
-            color: "#2563EB",
-            fontSize: 34,
-            fontWeight: 700,
-          }}
-        >
-          Smarter commutes. Better journeys.
-        </h2>
+        <h2 className="hero-h2">Smarter commutes. Better journeys.</h2>
 
         <p
           style={{

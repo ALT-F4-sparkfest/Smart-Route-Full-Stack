@@ -14,13 +14,11 @@ import hotspots from "../data/demandHotspots.json";
 
 export default function OperatorView({ onBack }) {
   const live = useLiveVehicles();
-  // Alerts now come from the hook directly — no separate fetch needed
   const alerts = live.alerts ?? [];
   const [waitingList, setWaitingList] = useState([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const [filterRoute, setFilterRoute] = useState("all");
 
-  // ✅ Listen for waiting updates from CommuterView via Socket.IO
   useEffect(() => {
     if (!live.socket) return;
 
@@ -41,7 +39,6 @@ export default function OperatorView({ onBack }) {
     };
   }, [live.socket]);
 
-  // Filter out invalid coordinates (already done, but keep)
   const vehicleList = Array.isArray(live.vehicles)
     ? live.vehicles.filter(
         (v) =>
@@ -62,7 +59,6 @@ export default function OperatorView({ onBack }) {
       ? vehicleList
       : vehicleList.filter((v) => v.route_id === filterRoute);
 
-  // Auto-select first vehicle
   useEffect(() => {
     if (filteredVehicles.length > 0 && !selectedVehicleId) {
       setSelectedVehicleId(filteredVehicles[0].id);
@@ -85,27 +81,9 @@ export default function OperatorView({ onBack }) {
     .slice(0, 5);
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        background: "#F1F5F9",
-      }}
-    >
+    <div className="operator-shell">
       {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "16px 32px",
-          background: "white",
-          borderBottom: "1px solid #E2E8F0",
-          gap: 20,
-          flexShrink: 0,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-        }}
-      >
+      <header className="operator-header">
         <button
           onClick={onBack}
           style={{
@@ -164,26 +142,11 @@ export default function OperatorView({ onBack }) {
         <KPICards vehicles={filteredVehicles} />
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          overflow: "hidden",
-          padding: "0 32px 32px 32px",
-          gap: 24,
-        }}
-      >
-        <div
-          style={{
-            flex: "0 0 60%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-          }}
-        >
+      <div className="operator-body">
+        <div className="operator-main">
           <div
+            className="live-map-wrap"
             style={{
-              flex: 1,
               position: "relative",
               background: "#E2E8F0",
               borderRadius: 22,
@@ -205,7 +168,7 @@ export default function OperatorView({ onBack }) {
             />
           </div>
 
-          <div style={{ display: "flex", gap: 24 }}>
+          <div className="operator-charts-row">
             <div style={{ flex: 1 }}>
               <TravelTimeChart />
             </div>
@@ -218,15 +181,7 @@ export default function OperatorView({ onBack }) {
           </div>
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
-            overflowY: "auto",
-          }}
-        >
+        <div className="operator-side">
           <VehicleDetailsPanel
             vehicle={selectedVehicle}
             status={selectedVehicle ? getStatus(selectedVehicle.speed) : null}

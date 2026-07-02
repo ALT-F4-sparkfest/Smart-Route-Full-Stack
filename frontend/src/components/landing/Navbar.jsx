@@ -3,6 +3,7 @@ import { Bus, GitBranch, Sparkles } from "lucide-react";
 export default function Navbar() {
   return (
     <nav
+      className="navbar-shell"
       style={{
         position: "sticky",
         top: 20,
@@ -17,9 +18,6 @@ export default function Navbar() {
         WebkitBackdropFilter: "blur(20px)",
         border: "1px solid rgba(255,255,255,.45)",
         boxShadow: "0 20px 45px rgba(15,23,42,.12)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
       }}
     >
       {/* LEFT */}
@@ -66,14 +64,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* CENTER */}
-      <div
-        style={{
-          display: "flex",
-          gap: 16,
-          alignItems: "center",
-        }}
-      >
+      {/* CENTER — hidden under 768px via .navbar-badges media query */}
+      <div className="navbar-badges">
         <Badge text="Real-Time Tracking" color="#2563EB" />
         <Badge text="AI Dispatch" color="#7C3AED" />
         <Badge text="Real-Time ETA" color="#22C55E" />

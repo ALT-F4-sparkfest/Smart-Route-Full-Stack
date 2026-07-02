@@ -14,6 +14,8 @@ import SearchOverlay from "../components/commuter/SearchOverlay";
 import ConnectionStatusPill from "../components/ConnectionStatusPill";
 import useLiveVehicles from "../hooks/useLiveVehicles";
 
+const API = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
 function distance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -89,7 +91,7 @@ export default function CommuterView({ onBack }) {
     setLoadingEta(true);
     try {
       const res = await fetch(
-        `http://localhost:3000/vehicles/${selectedVehicle.id}/eta/stop1`,
+        `${API}/vehicles/${selectedVehicle.id}/eta/stop1`,
       );
       const data = await res.json();
       setEta({
@@ -221,8 +223,6 @@ export default function CommuterView({ onBack }) {
           loading={loadingEta}
           connected={live.connected}
         />
-
-        {/* ✅ Duplicate pills removed – SearchOverlay now provides all quick destinations */}
 
         {/* Route filter — top left */}
         <div style={{ position: "absolute", top: 130, left: 16, zIndex: 100 }}>
