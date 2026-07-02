@@ -1,8 +1,9 @@
 // src/hooks/useLiveVehicles.js
+// src/hooks/useLiveVehicles.js
 import { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 
-const API = "http://localhost:3000";
+const API = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 function normaliseVehicle(v) {
   const speed = typeof v.speed === "number" ? v.speed : 0;
